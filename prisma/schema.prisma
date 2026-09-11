@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  BOSS
+  ADMIN
+  ACCOUNTING
+  LIAISON
+}
+
+enum WorkRole {
+  ACCOUNTING
+  LIAISON
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  WAITING_FOR_CLIENT
+  FOR_REVIEW
+  COMPLETED
+  CANCELLED
+}
+
+model Employee {
+  id           String   @id @default(cuid())
+  name         String
+  pinHash      String
+  role         Role
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  tasks        Task[]        @relation("AssignedTo")
+  activityLogs ActivityLog[]
+}
+
+model Client {
+  id        String   @id @default(cuid())
+  name      String
+  status    String   @default("ACTIVE")
+  notes     String?
+  createdAt DateTime @default(now())
+
+  tasks Task[]
+}
+
+model Task {
+  id             String     @id @default(cuid())
+  title          String
+  clientId       String
+  client         Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  assignedToId   String?
+  assignedTo     Employee?  @relation("AssignedTo", fields: [assignedToId], references: [id])
+  workRole       WorkRole
+  status         TaskStatus @default(PENDING)
+  progressPct    Int        @default(0)
+  dueDate        DateTime?
+  notes          String?
+  followUpDate   DateTime?
+  result         String?
+  dependsOnId    String?
+  dependsOn      Task?      @relation("Dependency", fields: [dependsOnId], references: [id])
+  dependents     Task[]     @relation("Dependency")
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  activityLogs ActivityLog[]
+
+  @@index([clientId])
+  @@index([assignedToId])
+  @@index([status])
+}
+
+model ActivityLog {
+  id         String   @id @default(cuid())
+  taskId     String
+  task       Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  action     String
+  createdAt  DateTime @default(now())
+
+  @@index([taskId])
+}
