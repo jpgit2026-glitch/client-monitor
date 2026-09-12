@@ -105,7 +105,7 @@ export default function ClientsPage() {
                   </div>
                 </td>
                 <td>
-                  <Link href={`/clients/${c.id}`} className="text-xs font-medium text-green-600 hover:text-green-800 transition-colors">
+                  <Link href={`/clients/${c.id}`} className="text-xs font-medium text-brand-600 hover:text-brand-800 transition-colors">
                     View &rarr;
                   </Link>
                 </td>

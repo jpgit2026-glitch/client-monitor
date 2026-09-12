@@ -25,14 +25,14 @@ export default function NavBar({ name, role }: Props) {
   if (["BOSS", "ADMIN"].includes(role)) links.push({ href: "/employees", label: "Employees" });
 
   return (
-    <header className="bg-white/80 backdrop-blur-md border-b border-green-100 sticky top-0 z-50">
+    <header className="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
         <div className="flex items-center gap-8">
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <span className="w-7 h-7 rounded-lg bg-green-600 text-white text-xs font-bold flex items-center justify-center">
+          <Link href="/dashboard" className="flex items-center gap-2.5">
+            <span className="w-7 h-7 rounded-lg bg-brand-600 text-white text-xs font-bold flex items-center justify-center">
               CM
             </span>
-            <span className="text-sm font-semibold text-green-800 hidden sm:inline">Client Monitor</span>
+            <span className="text-sm font-semibold text-slate-800 hidden sm:inline">Client Monitor</span>
           </Link>
           <nav className="flex items-center gap-0.5">
             {links.map((l) => {
@@ -41,10 +41,10 @@ export default function NavBar({ name, role }: Props) {
                 <Link
                   key={l.href}
                   href={l.href}
-                  className={`px-3 py-1.5 text-sm rounded-md transition-all ${
+                  className={`px-3 py-1.5 text-sm rounded-lg transition-all ${
                     active
-                      ? "bg-green-100 text-green-800 font-semibold"
-                      : "text-muted hover:text-green-700 hover:bg-green-50"
+                      ? "bg-brand-50 text-brand-700 font-semibold"
+                      : "text-muted hover:text-slate-800 hover:bg-slate-100"
                   }`}
                 >
                   {l.label}
@@ -55,12 +55,12 @@ export default function NavBar({ name, role }: Props) {
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-xs font-bold">
+            <div className="w-8 h-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-bold">
               {name.charAt(0)}
             </div>
             <p className="text-sm font-medium leading-tight hidden sm:block">{name.split(" ")[0]}</p>
           </div>
-          <button onClick={logout} className="btn btn-primary text-xs px-3 py-1.5">
+          <button onClick={logout} className="btn text-xs px-3 py-1.5">
             Sign out
           </button>
         </div>

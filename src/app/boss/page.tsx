@@ -48,7 +48,7 @@ export default function BossPage() {
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`btn text-xs ${filter === f ? "bg-green-600 text-white border-green-600 hover:bg-green-700" : ""}`}
+            className={`btn text-xs ${filter === f ? "bg-brand-600 text-white border-brand-600 hover:bg-brand-700" : ""}`}
           >
             {f === "ALL" ? "All" : f.charAt(0) + f.slice(1).toLowerCase()}
           </button>
@@ -84,14 +84,14 @@ export default function BossPage() {
               <tr key={r.id}>
                 <td>
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-xs font-bold shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-bold shrink-0">
                       {r.name.charAt(0)}
                     </div>
                     <span className="font-medium">{r.name}</span>
                   </div>
                 </td>
                 <td>
-                  <span className="tag bg-green-50 text-green-700">
+                  <span className="tag bg-brand-50 text-brand-700">
                     {r.role.charAt(0) + r.role.slice(1).toLowerCase()}
                   </span>
                 </td>
@@ -108,7 +108,7 @@ export default function BossPage() {
                   </div>
                 </td>
                 <td>
-                  <Link href={`/boss/employee/${r.id}`} className="text-xs font-medium text-green-600 hover:text-green-800 transition-colors">
+                  <Link href={`/boss/employee/${r.id}`} className="text-xs font-medium text-brand-600 hover:text-brand-800 transition-colors">
                     View &rarr;
                   </Link>
                 </td>

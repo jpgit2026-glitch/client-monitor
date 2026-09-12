@@ -36,9 +36,9 @@ const STATUS_LABEL: Record<string, string> = {
   FOR_REVIEW: "For review", COMPLETED: "Completed", CANCELLED: "Cancelled",
 };
 const STATUS_STYLE: Record<string, string> = {
-  PENDING: "bg-ink/5 text-ink/50", IN_PROGRESS: "bg-green-100 text-green-700",
-  WAITING_FOR_CLIENT: "bg-amber/10 text-amber", FOR_REVIEW: "bg-green-50 text-green-500",
-  COMPLETED: "bg-green-100 text-green-800", CANCELLED: "bg-ink/5 text-ink/30",
+  PENDING: "bg-slate-100 text-slate-500", IN_PROGRESS: "bg-brand-50 text-brand-700",
+  WAITING_FOR_CLIENT: "bg-amber-50 text-amber-700", FOR_REVIEW: "bg-blue-50 text-blue-600",
+  COMPLETED: "bg-emerald-50 text-emerald-700", CANCELLED: "bg-slate-100 text-slate-400",
 };
 
 export default function TaskDetailPage({ params }: { params: { id: string } }) {
@@ -111,7 +111,7 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="space-y-7 max-w-3xl">
-      <button onClick={() => router.back()} className="text-sm text-muted hover:text-green-700 transition-colors">
+      <button onClick={() => router.back()} className="text-sm text-muted hover:text-brand-700 transition-colors">
         &larr; Back
       </button>
 
@@ -120,7 +120,7 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
         <div className="flex items-start justify-between gap-4">
           <h1 className="text-2xl font-bold text-ink">{task.title}</h1>
           <div className="flex gap-2 shrink-0 mt-1">
-            {task.isOverdue && <span className="tag bg-rust/8 text-rust">Overdue</span>}
+            {task.isOverdue && <span className="tag bg-red-50 text-red-600">Overdue</span>}
             <span className={`tag ${STATUS_STYLE[task.status]}`}>{STATUS_LABEL[task.status]}</span>
           </div>
         </div>
@@ -132,15 +132,15 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
           {task.createdBy && <><span className="text-rule">&middot;</span><span>Assigned by {task.createdBy.name}</span></>}
         </div>
         {blocked && (
-          <div className="mt-4 rounded-lg bg-amber/8 border border-amber/15 px-4 py-3">
-            <p className="text-sm text-amber font-medium">Blocked — waiting on: {task.dependsOn!.title} ({STATUS_LABEL[task.dependsOn!.status]})</p>
+          <div className="mt-4 rounded-lg bg-amber-50 border border-amber-200 px-4 py-3">
+            <p className="text-sm text-amber-700 font-medium">Blocked — waiting on: {task.dependsOn!.title} ({STATUS_LABEL[task.dependsOn!.status]})</p>
           </div>
         )}
         <div className="mt-5 flex items-center gap-3">
           <div className="progress-bar flex-1 h-2.5">
             <div className="progress-bar-fill h-2.5" style={{ width: `${task.progressPct}%` }} />
           </div>
-          <span className="text-sm font-semibold text-green-700">{task.progressPct}%</span>
+          <span className="text-sm font-semibold text-brand-600">{task.progressPct}%</span>
         </div>
       </div>
 
@@ -194,7 +194,7 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
         <div className="space-y-5 mb-6">
           {task.comments.map((c) => (
             <div key={c.id} className="flex gap-3">
-              <div className="w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+              <div className="w-8 h-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
                 {c.employee.name.charAt(0)}
               </div>
               <div className="flex-1 min-w-0">

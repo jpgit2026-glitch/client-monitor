@@ -146,7 +146,7 @@ function AssignTaskForm({
         <button onClick={onClose} className="btn btn-ghost text-xs px-2 py-1">Close</button>
       </div>
       {error && (
-        <div className="rounded-lg bg-rust/8 border border-rust/15 px-4 py-3 mb-5">
+        <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 mb-5">
           <p className="text-sm text-rust font-medium">{error}</p>
         </div>
       )}
@@ -208,7 +208,7 @@ function Section({ title, count, accent, children }: { title: string; count: num
     <div>
       <div className="flex items-center gap-2.5 mb-4">
         <h2 className={`section-title ${accent ?? ""}`}>{title}</h2>
-        <span className="text-2xs text-muted bg-green-100/60 rounded-full px-2.5 py-0.5 font-semibold">{count}</span>
+        <span className="text-2xs text-muted bg-slate-100 rounded-full px-2.5 py-0.5 font-semibold">{count}</span>
       </div>
       <div className="space-y-3">{children}</div>
     </div>

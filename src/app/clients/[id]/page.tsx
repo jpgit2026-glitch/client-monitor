@@ -37,7 +37,7 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
   return (
     <div className="space-y-8">
       <div>
-        <button onClick={() => router.back()} className="text-sm text-muted hover:text-green-700 transition-colors mb-4">
+        <button onClick={() => router.back()} className="text-sm text-muted hover:text-brand-700 transition-colors mb-4">
           &larr; Back
         </button>
         <h1 className="text-2xl font-bold text-ink">{client.name}</h1>
@@ -46,7 +46,7 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
           <div className="progress-bar flex-1 h-2.5">
             <div className="progress-bar-fill h-2.5" style={{ width: `${overallProgress}%` }} />
           </div>
-          <span className="text-sm font-semibold text-green-700">{overallProgress}%</span>
+          <span className="text-sm font-semibold text-brand-600">{overallProgress}%</span>
         </div>
       </div>
 
@@ -58,7 +58,7 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
       <div>
         <div className="flex items-center gap-2.5 mb-3">
           <h2 className="section-title">Active work</h2>
-          <span className="text-2xs text-muted bg-green-100/60 rounded-full px-2.5 py-0.5 font-semibold">{active.length}</span>
+          <span className="text-2xs text-muted bg-slate-100 rounded-full px-2.5 py-0.5 font-semibold">{active.length}</span>
         </div>
         <div className="space-y-3">
           {active.length === 0 && <p className="p-6 text-sm text-muted">No active work for this client.</p>}

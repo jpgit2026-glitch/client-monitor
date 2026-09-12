@@ -56,7 +56,7 @@ export default function LiaisonPage() {
           <div key={g.title}>
             <div className="flex items-center gap-2.5 mb-3">
               <h2 className={`section-title ${g.accent ?? ""}`}>{g.title}</h2>
-              <span className="text-2xs text-muted bg-green-100/60 rounded-full px-2.5 py-0.5 font-semibold">{g.list.length}</span>
+              <span className="text-2xs text-muted bg-slate-100 rounded-full px-2.5 py-0.5 font-semibold">{g.list.length}</span>
             </div>
             <div className="space-y-3">
               {g.list.map((t) => (
@@ -71,7 +71,7 @@ export default function LiaisonPage() {
         <div>
           <div className="flex items-center gap-2.5 mb-3">
             <h2 className="section-title">Related accounting work</h2>
-            <span className="text-2xs text-muted bg-green-100/60 rounded-full px-2.5 py-0.5 font-semibold">{connected.length}</span>
+            <span className="text-2xs text-muted bg-slate-100 rounded-full px-2.5 py-0.5 font-semibold">{connected.length}</span>
           </div>
           <div className="space-y-3">
             {connected.map((t) => <TaskRow key={t.id} task={t} readOnly />)}

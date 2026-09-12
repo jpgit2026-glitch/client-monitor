@@ -41,16 +41,16 @@ export default function EmployeeDetailPage({ params }: { params: { id: string } 
   return (
     <div className="space-y-8">
       <div>
-        <button onClick={() => router.back()} className="text-sm text-muted hover:text-green-700 transition-colors mb-4">
+        <button onClick={() => router.back()} className="text-sm text-muted hover:text-brand-700 transition-colors mb-4">
           &larr; Back to team
         </button>
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-lg font-bold">
+          <div className="w-12 h-12 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-lg font-bold">
             {employee.name.charAt(0)}
           </div>
           <div>
             <h1 className="text-2xl font-bold text-ink">{employee.name}</h1>
-            <span className="tag bg-green-50 text-green-700 mt-0.5">{employee.role.charAt(0) + employee.role.slice(1).toLowerCase()}</span>
+            <span className="tag bg-brand-50 text-brand-700 mt-0.5">{employee.role.charAt(0) + employee.role.slice(1).toLowerCase()}</span>
           </div>
         </div>
       </div>
@@ -66,7 +66,7 @@ export default function EmployeeDetailPage({ params }: { params: { id: string } 
             <div className="progress-bar w-16 h-2">
               <div className="progress-bar-fill h-2" style={{ width: `${avgProgress}%` }} />
             </div>
-            <span className="text-lg font-bold text-green-700">{avgProgress}%</span>
+            <span className="text-lg font-bold text-brand-600">{avgProgress}%</span>
           </div>
           <div className="stat-label mt-1">Avg progress</div>
         </div>
@@ -78,7 +78,7 @@ export default function EmployeeDetailPage({ params }: { params: { id: string } 
           <div key={g.title}>
             <div className="flex items-center gap-2.5 mb-3">
               <h2 className={`section-title ${g.accent ?? ""}`}>{g.title}</h2>
-              <span className="text-2xs text-muted bg-green-100/60 rounded-full px-2.5 py-0.5 font-semibold">{g.list.length}</span>
+              <span className="text-2xs text-muted bg-slate-100 rounded-full px-2.5 py-0.5 font-semibold">{g.list.length}</span>
             </div>
             <div className="space-y-3">
               {g.list.map((t) => (

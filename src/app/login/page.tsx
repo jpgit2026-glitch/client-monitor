@@ -30,10 +30,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-green-50 to-paper">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-100 to-paper">
       <div className="w-full max-w-sm px-4">
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-green-600 text-white text-xl font-bold mb-5 shadow-soft">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-brand-600 text-white text-xl font-bold mb-5 shadow-soft">
             CM
           </div>
           <h1 className="text-2xl font-bold text-ink">Client Monitor</h1>
@@ -68,8 +68,8 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <div className="rounded-lg bg-rust/8 border border-rust/15 px-4 py-3">
-              <p className="text-sm text-rust font-medium">{error}</p>
+            <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3">
+              <p className="text-sm text-red-600 font-medium">{error}</p>
             </div>
           )}
 
