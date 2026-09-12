@@ -20,7 +20,7 @@ export default function LiaisonPage() {
 
   useEffect(() => { load(); }, [sort]);
 
-  if (loading) return <p className="text-sm text-muted py-12 text-center">Loading...</p>;
+  if (loading) return <p className="text-sm text-muted py-16 text-center">Loading...</p>;
 
   const today = new Date().toDateString();
   const isToday = (t: TaskLike) => t.dueDate && new Date(t.dueDate).toDateString() === today;
@@ -40,25 +40,25 @@ export default function LiaisonPage() {
     <div className="space-y-8">
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-xl font-semibold">Liaison Board</h1>
-          <p className="text-sm text-muted mt-0.5">Government filings and client errands</p>
+          <h1 className="text-2xl font-bold text-ink">Liaison Board</h1>
+          <p className="text-sm text-muted mt-1">Government filings and client errands</p>
         </div>
-        <select className="input text-xs py-1.5" value={sort} onChange={(e) => setSort(e.target.value)}>
-          <option value="dueDate">Deadline</option>
-          <option value="priority">Priority</option>
-          <option value="created">Newest</option>
-          <option value="progress">Progress</option>
+        <select className="input text-xs py-2" value={sort} onChange={(e) => setSort(e.target.value)}>
+          <option value="dueDate">Sort by deadline</option>
+          <option value="priority">Sort by priority</option>
+          <option value="created">Sort by newest</option>
+          <option value="progress">Sort by progress</option>
         </select>
       </div>
 
       {groups.map((g) =>
         g.list.length > 0 ? (
           <div key={g.title}>
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2.5 mb-3">
               <h2 className={`section-title ${g.accent ?? ""}`}>{g.title}</h2>
-              <span className="text-xs text-muted bg-ink/5 rounded-full px-2 py-0.5">{g.list.length}</span>
+              <span className="text-2xs text-muted bg-green-100/60 rounded-full px-2.5 py-0.5 font-semibold">{g.list.length}</span>
             </div>
-            <div className="card divide-y divide-rule/50">
+            <div className="card divide-y divide-rule/40">
               {g.list.map((t) => (
                 <TaskRow key={t.id} task={t} onChange={load} readOnly={t.status === "COMPLETED"} />
               ))}
@@ -69,11 +69,11 @@ export default function LiaisonPage() {
 
       {connected.length > 0 && (
         <div>
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2.5 mb-3">
             <h2 className="section-title">Related accounting work</h2>
-            <span className="text-xs text-muted bg-ink/5 rounded-full px-2 py-0.5">{connected.length}</span>
+            <span className="text-2xs text-muted bg-green-100/60 rounded-full px-2.5 py-0.5 font-semibold">{connected.length}</span>
           </div>
-          <div className="card divide-y divide-rule/50">
+          <div className="card divide-y divide-rule/40">
             {connected.map((t) => <TaskRow key={t.id} task={t} readOnly />)}
           </div>
         </div>

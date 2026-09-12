@@ -42,7 +42,7 @@ export default function DashboardPage() {
     setShowAssignForm(true);
   }
 
-  if (loading) return <p className="text-sm text-muted py-12 text-center">Loading your work...</p>;
+  if (loading) return <p className="text-sm text-muted py-16 text-center">Loading your work...</p>;
 
   const overdue = tasks.filter((t) => t.isOverdue);
   const open = tasks.filter((t) => !t.isOverdue && t.status !== "COMPLETED" && t.status !== "CANCELLED");
@@ -52,15 +52,15 @@ export default function DashboardPage() {
     <div className="space-y-8">
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-xl font-semibold">My Work</h1>
-          <p className="text-sm text-muted mt-0.5">{tasks.length} tasks assigned to you</p>
+          <h1 className="text-2xl font-bold text-ink">My Work</h1>
+          <p className="text-sm text-muted mt-1">{tasks.length} tasks assigned to you</p>
         </div>
         <div className="flex items-center gap-2">
-          <select className="input text-xs py-1.5" value={sort} onChange={(e) => setSort(e.target.value)}>
-            <option value="dueDate">Deadline</option>
-            <option value="priority">Priority</option>
-            <option value="created">Newest</option>
-            <option value="progress">Progress</option>
+          <select className="input text-xs py-2" value={sort} onChange={(e) => setSort(e.target.value)}>
+            <option value="dueDate">Sort by deadline</option>
+            <option value="priority">Sort by priority</option>
+            <option value="created">Sort by newest</option>
+            <option value="progress">Sort by progress</option>
           </select>
           <button onClick={handleOpenAssignForm} className="btn btn-primary text-xs">
             + Assign task
@@ -84,7 +84,7 @@ export default function DashboardPage() {
       )}
 
       <Section title="Open work" count={open.length}>
-        {open.length === 0 && <p className="text-sm text-muted p-5">All clear — no open tasks.</p>}
+        {open.length === 0 && <p className="text-sm text-muted p-6">All clear — no open tasks.</p>}
         {open.map((t) => <TaskRow key={t.id} task={t} onChange={load} />)}
       </Section>
 
@@ -140,44 +140,44 @@ function AssignTaskForm({
   }
 
   return (
-    <div className="card p-6">
-      <div className="flex items-center justify-between mb-5">
-        <h2 className="font-semibold">Assign a new task</h2>
+    <div className="card-elevated p-7">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-lg font-bold text-ink">Assign a new task</h2>
         <button onClick={onClose} className="btn btn-ghost text-xs px-2 py-1">Close</button>
       </div>
       {error && (
-        <div className="rounded-md bg-rust/10 border border-rust/20 px-3 py-2 mb-4">
-          <p className="text-sm text-rust">{error}</p>
+        <div className="rounded-lg bg-rust/8 border border-rust/15 px-4 py-3 mb-5">
+          <p className="text-sm text-rust font-medium">{error}</p>
         </div>
       )}
-      <form onSubmit={submit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <form onSubmit={submit} className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div className="sm:col-span-2">
-          <label className="block text-sm font-medium text-ink/70 mb-1">Task title</label>
+          <label className="block text-sm font-medium text-ink mb-2">Task title</label>
           <input className="input w-full" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. File BIR Form 2307" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-ink/70 mb-1">Client</label>
+          <label className="block text-sm font-medium text-ink mb-2">Client</label>
           <select className="input w-full" value={clientId} onChange={(e) => setClientId(e.target.value)}>
             <option value="">Select client</option>
             {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-ink/70 mb-1">Assign to</label>
+          <label className="block text-sm font-medium text-ink mb-2">Assign to</label>
           <select className="input w-full" value={assignedToId} onChange={(e) => setAssignedToId(e.target.value)}>
             <option value="">Unassigned</option>
             {employees.map((emp) => <option key={emp.id} value={emp.id}>{emp.name} ({emp.role})</option>)}
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-ink/70 mb-1">Work role</label>
+          <label className="block text-sm font-medium text-ink mb-2">Work role</label>
           <select className="input w-full" value={workRole} onChange={(e) => setWorkRole(e.target.value as any)}>
             <option value="ACCOUNTING">Accounting</option>
             <option value="LIAISON">Liaison</option>
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-ink/70 mb-1">Priority</label>
+          <label className="block text-sm font-medium text-ink mb-2">Priority</label>
           <select className="input w-full" value={priority} onChange={(e) => setPriority(e.target.value)}>
             <option value="URGENT">Urgent</option>
             <option value="HIGH">High</option>
@@ -186,15 +186,15 @@ function AssignTaskForm({
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-ink/70 mb-1">Due date</label>
+          <label className="block text-sm font-medium text-ink mb-2">Due date</label>
           <input type="date" className="input w-full" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
         </div>
         <div className="sm:col-span-2">
-          <label className="block text-sm font-medium text-ink/70 mb-1">Notes for the assignee</label>
+          <label className="block text-sm font-medium text-ink mb-2">Notes for the assignee</label>
           <textarea className="input w-full" rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Instructions or context..." />
         </div>
         <div className="sm:col-span-2">
-          <button type="submit" disabled={saving} className="btn btn-primary text-sm">
+          <button type="submit" disabled={saving} className="btn btn-primary text-sm px-6">
             {saving ? "Creating..." : "Create & assign"}
           </button>
         </div>
@@ -206,11 +206,11 @@ function AssignTaskForm({
 function Section({ title, count, accent, children }: { title: string; count: number; accent?: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="flex items-center gap-2 mb-2">
+      <div className="flex items-center gap-2.5 mb-3">
         <h2 className={`section-title ${accent ?? ""}`}>{title}</h2>
-        <span className="text-xs text-muted bg-ink/5 rounded-full px-2 py-0.5">{count}</span>
+        <span className="text-2xs text-muted bg-green-100/60 rounded-full px-2.5 py-0.5 font-semibold">{count}</span>
       </div>
-      <div className="card divide-y divide-rule/50">{children}</div>
+      <div className="card divide-y divide-rule/40">{children}</div>
     </div>
   );
 }

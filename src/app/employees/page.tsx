@@ -45,19 +45,19 @@ export default function EmployeesPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-xl font-semibold">Employees</h1>
-        <p className="text-sm text-muted mt-0.5">
+        <h1 className="text-2xl font-bold text-ink">Employees</h1>
+        <p className="text-sm text-muted mt-1">
           Add a teammate and give them a PIN — they pick their name and enter it to sign in.
         </p>
       </div>
 
-      <form onSubmit={addEmployee} className="card p-5 grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
+      <form onSubmit={addEmployee} className="card-elevated p-6 grid grid-cols-1 sm:grid-cols-4 gap-5 items-end">
         <div>
-          <label className="block text-sm font-medium text-ink/70 mb-1">Name</label>
+          <label className="block text-sm font-medium text-ink mb-2">Name</label>
           <input className="input w-full" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Full name" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-ink/70 mb-1">Role</label>
+          <label className="block text-sm font-medium text-ink mb-2">Role</label>
           <select className="input w-full" value={role} onChange={(e) => setRole(e.target.value)}>
             {ROLES.map((r) => (
               <option key={r} value={r}>{r.charAt(0) + r.slice(1).toLowerCase()}</option>
@@ -65,7 +65,7 @@ export default function EmployeesPage() {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-ink/70 mb-1">PIN (4+ digits)</label>
+          <label className="block text-sm font-medium text-ink mb-2">PIN (4+ digits)</label>
           <input
             className="input w-full"
             value={pin}
@@ -79,8 +79,8 @@ export default function EmployeesPage() {
           {saving ? "Adding..." : "Add employee"}
         </button>
         {error && (
-          <div className="sm:col-span-4 rounded-md bg-rust/10 border border-rust/20 px-3 py-2">
-            <p className="text-sm text-rust">{error}</p>
+          <div className="sm:col-span-4 rounded-lg bg-rust/8 border border-rust/15 px-4 py-3">
+            <p className="text-sm text-rust font-medium">{error}</p>
           </div>
         )}
       </form>
@@ -98,24 +98,31 @@ export default function EmployeesPage() {
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td colSpan={4} className="text-muted text-center py-8">No employees yet.</td>
+                <td colSpan={4} className="text-muted text-center py-10">No employees yet.</td>
               </tr>
             )}
             {rows.map((r) => (
               <tr key={r.id}>
-                <td className="font-medium">{r.name}</td>
                 <td>
-                  <span className="tag bg-ink/5 text-ink/60 text-[10px]">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-xs font-bold shrink-0">
+                      {r.name.charAt(0)}
+                    </div>
+                    <span className="font-medium">{r.name}</span>
+                  </div>
+                </td>
+                <td>
+                  <span className="tag bg-green-50 text-green-700">
                     {r.role.charAt(0) + r.role.slice(1).toLowerCase()}
                   </span>
                 </td>
-                <td className="text-center">{r.total}</td>
+                <td className="text-center font-medium">{r.total}</td>
                 <td>
-                  <div className="flex items-center gap-2">
-                    <div className="progress-bar flex-1 w-16">
+                  <div className="flex items-center gap-2.5">
+                    <div className="progress-bar flex-1 w-20">
                       <div className="progress-bar-fill" style={{ width: `${r.progress}%` }} />
                     </div>
-                    <span className="text-xs text-muted w-8 text-right">{r.progress}%</span>
+                    <span className="text-xs text-muted font-medium w-8 text-right">{r.progress}%</span>
                   </div>
                 </td>
               </tr>

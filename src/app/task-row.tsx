@@ -34,19 +34,19 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 const STATUS_STYLE: Record<string, string> = {
-  PENDING: "bg-ink/5 text-ink/60",
-  IN_PROGRESS: "bg-ledger-50 text-ledger-700",
+  PENDING: "bg-ink/5 text-ink/50",
+  IN_PROGRESS: "bg-green-100 text-green-700",
   WAITING_FOR_CLIENT: "bg-amber/10 text-amber",
-  FOR_REVIEW: "bg-ledger-50 text-ledger-400",
-  COMPLETED: "bg-ledger-100 text-ledger-700",
+  FOR_REVIEW: "bg-green-50 text-green-500",
+  COMPLETED: "bg-green-100 text-green-800",
   CANCELLED: "bg-ink/5 text-ink/30",
 };
 
 const PRIORITY_STYLE: Record<string, string> = {
-  URGENT: "bg-rust/15 text-rust font-semibold",
+  URGENT: "bg-rust/10 text-rust",
   HIGH: "bg-amber/10 text-amber",
   NORMAL: "",
-  LOW: "bg-ink/5 text-ink/40",
+  LOW: "bg-ink/5 text-ink/35",
 };
 
 const PRIORITY_LABEL: Record<string, string> = {
@@ -100,56 +100,56 @@ export default function TaskRow({
   const showPriority = task.priority && task.priority !== "NORMAL";
 
   return (
-    <div className="px-4 py-3.5 group">
-      <div className="flex items-start justify-between gap-3">
+    <div className="px-5 py-4 group">
+      <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             {showPriority && (
-              <span className={`tag text-[10px] ${PRIORITY_STYLE[task.priority!]}`}>
+              <span className={`tag ${PRIORITY_STYLE[task.priority!]}`}>
                 {PRIORITY_LABEL[task.priority!]}
               </span>
             )}
-            <Link href={`/tasks/${task.id}`} className="text-sm font-medium text-ink hover:text-ledger-600 transition-colors truncate">
+            <Link href={`/tasks/${task.id}`} className="text-sm font-medium text-ink hover:text-green-700 transition-colors truncate">
               {task.title}
             </Link>
           </div>
-          <div className="flex items-center gap-1.5 mt-1 text-xs text-muted">
+          <div className="flex items-center gap-2 mt-1.5 text-xs text-muted">
             {task.client && <span>{task.client.name}</span>}
-            {task.assignedTo && <><span className="text-ink/20">|</span><span>{task.assignedTo.name}</span></>}
-            {task.createdBy && <><span className="text-ink/20">|</span><span className="text-ink/30">from {task.createdBy.name}</span></>}
+            {task.assignedTo && <><span className="text-rule">&middot;</span><span>{task.assignedTo.name}</span></>}
+            {task.createdBy && <><span className="text-rule">&middot;</span><span className="text-muted/60">from {task.createdBy.name}</span></>}
             {task.dueDate && (
               <>
-                <span className="text-ink/20">|</span>
-                <span className={task.isOverdue ? "text-rust font-medium" : ""}>{formatDate(task.dueDate)}</span>
+                <span className="text-rule">&middot;</span>
+                <span className={task.isOverdue ? "text-rust font-semibold" : ""}>{formatDate(task.dueDate)}</span>
               </>
             )}
             {commentCount > 0 && (
               <>
-                <span className="text-ink/20">|</span>
-                <Link href={`/tasks/${task.id}`} className="hover:text-ink transition-colors">
+                <span className="text-rule">&middot;</span>
+                <Link href={`/tasks/${task.id}`} className="hover:text-green-600 transition-colors">
                   {commentCount} {commentCount === 1 ? "note" : "notes"}
                 </Link>
               </>
             )}
           </div>
           {blocked && (
-            <p className="text-xs text-amber mt-1.5 flex items-center gap-1">
-              <span className="w-3.5 h-3.5 inline-flex items-center justify-center rounded-full bg-amber/15 text-[9px]">!</span>
+            <p className="text-xs text-amber mt-2 flex items-center gap-1.5">
+              <span className="w-4 h-4 inline-flex items-center justify-center rounded-full bg-amber/12 text-[9px] font-bold">!</span>
               Blocked by: {task.dependsOn!.title}
             </p>
           )}
         </div>
-        <div className="flex items-center gap-2.5 shrink-0">
-          {task.isOverdue && <span className="tag bg-rust/10 text-rust text-[10px]">Overdue</span>}
-          <span className={`tag ${STATUS_STYLE[task.status] ?? "bg-ink/5 text-ink/60"}`}>{STATUS_LABEL[task.status] ?? task.status}</span>
-          <div className="w-16 flex items-center gap-1.5">
+        <div className="flex items-center gap-3 shrink-0">
+          {task.isOverdue && <span className="tag bg-rust/8 text-rust">Overdue</span>}
+          <span className={`tag ${STATUS_STYLE[task.status] ?? "bg-ink/5 text-ink/50"}`}>{STATUS_LABEL[task.status] ?? task.status}</span>
+          <div className="w-20 flex items-center gap-2">
             <div className="progress-bar flex-1">
               <div className="progress-bar-fill" style={{ width: `${task.progressPct}%` }} />
             </div>
-            <span className="text-[10px] text-muted w-7 text-right">{task.progressPct}%</span>
+            <span className="text-2xs text-muted font-medium w-7 text-right">{task.progressPct}%</span>
           </div>
           {!readOnly && (
-            <button className="btn text-xs px-2.5 py-1" onClick={() => setOpen((v) => !v)}>
+            <button className="btn text-xs px-3 py-1.5" onClick={() => setOpen((v) => !v)}>
               {open ? "Close" : "Update"}
             </button>
           )}
@@ -157,9 +157,9 @@ export default function TaskRow({
       </div>
 
       {open && !readOnly && (
-        <div className="mt-3 pt-3 border-t border-rule/50 grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="mt-4 pt-4 border-t border-rule/40 grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div>
-            <label className="block text-xs font-medium text-muted mb-1">Status</label>
+            <label className="block text-2xs font-semibold text-muted mb-1.5 uppercase tracking-wider">Status</label>
             <select className="input w-full text-sm" value={status} onChange={(e) => setStatus(e.target.value)}>
               {STATUS_OPTIONS.map((s) => (
                 <option key={s} value={s}>{STATUS_LABEL[s]}</option>
@@ -167,7 +167,7 @@ export default function TaskRow({
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-muted mb-1">Progress</label>
+            <label className="block text-2xs font-semibold text-muted mb-1.5 uppercase tracking-wider">Progress</label>
             <input
               type="number" min={0} max={100}
               className="input w-full text-sm"
@@ -176,15 +176,15 @@ export default function TaskRow({
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-muted mb-1">Deadline</label>
+            <label className="block text-2xs font-semibold text-muted mb-1.5 uppercase tracking-wider">Deadline</label>
             <input type="date" className="input w-full text-sm" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
           </div>
           <div>
-            <label className="block text-xs font-medium text-muted mb-1">Notes</label>
+            <label className="block text-2xs font-semibold text-muted mb-1.5 uppercase tracking-wider">Notes</label>
             <input className="input w-full text-sm" value={notes} onChange={(e) => setNotes(e.target.value)} />
           </div>
           <div className="col-span-2 sm:col-span-4 flex gap-2 pt-1">
-            <button onClick={save} disabled={saving} className="btn btn-primary text-xs px-4">
+            <button onClick={save} disabled={saving} className="btn btn-primary text-xs px-5">
               {saving ? "Saving..." : "Save"}
             </button>
             <Link href={`/tasks/${task.id}`} className="btn btn-ghost text-xs">

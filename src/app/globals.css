@@ -5,18 +5,20 @@
 @layer base {
   body {
     @apply bg-paper text-ink antialiased;
+    font-size: 0.875rem;
+    line-height: 1.5;
   }
 
   table {
-    @apply w-full border-collapse text-sm;
+    @apply w-full border-collapse;
   }
 
   th {
-    @apply text-left text-xs font-medium text-muted uppercase tracking-wider border-b border-rule py-3 pr-4;
+    @apply text-left text-2xs font-semibold text-muted uppercase tracking-widest py-3 px-4 border-b border-rule;
   }
 
   td {
-    @apply border-b border-rule/60 py-3 pr-4 align-middle;
+    @apply py-3.5 px-4 align-middle text-sm;
   }
 
   tr:last-child td {
@@ -24,44 +26,60 @@
   }
 
   tbody tr {
-    @apply transition-colors hover:bg-ledger-50/40;
+    @apply border-b border-rule/40 transition-colors;
+  }
+
+  tbody tr:hover {
+    @apply bg-green-50/50;
   }
 }
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center gap-1.5 rounded-md border border-rule px-3.5 py-2 text-sm font-medium text-ink/80 hover:bg-ink/5 transition-all active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-1.5 rounded-md border border-rule px-4 py-2 text-sm font-medium text-ink/80 bg-white hover:bg-green-50 hover:border-green-200 transition-all active:scale-[0.98] cursor-pointer;
   }
 
   .btn-primary {
-    @apply bg-ledger-600 text-white border-ledger-600 hover:bg-ledger-700 hover:border-ledger-700;
+    @apply bg-green-600 text-white border-green-600 hover:bg-green-700 hover:border-green-700 shadow-sm;
   }
 
   .btn-ghost {
-    @apply border-transparent text-muted hover:text-ink hover:bg-ink/5;
+    @apply border-transparent bg-transparent text-muted hover:text-ink hover:bg-green-50;
   }
 
   .input {
-    @apply rounded-md border border-rule bg-white px-3 py-2 text-sm shadow-inner focus:outline-none focus:ring-2 focus:ring-ledger-200 focus:border-ledger-400 transition-shadow placeholder:text-ink/30;
+    @apply rounded-md border border-rule bg-white px-3.5 py-2.5 text-sm shadow-inner focus:outline-none focus:ring-2 focus:ring-green-200/60 focus:border-green-400 transition-all placeholder:text-muted/40;
   }
 
   .card {
-    @apply rounded-lg border border-rule/80 bg-white shadow-card;
+    @apply rounded-lg border border-rule/70 bg-white shadow-card;
+  }
+
+  .card-elevated {
+    @apply rounded-xl border border-rule/50 bg-white shadow-soft;
   }
 
   .tag {
-    @apply inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full;
+    @apply inline-flex items-center px-2.5 py-0.5 text-2xs font-semibold rounded-full whitespace-nowrap;
   }
 
   .section-title {
-    @apply text-xs font-semibold uppercase tracking-wider text-muted;
+    @apply text-2xs font-bold uppercase tracking-widest text-muted;
   }
 
   .progress-bar {
-    @apply h-1.5 rounded-full bg-rule/60 overflow-hidden;
+    @apply h-1.5 rounded-full bg-green-100 overflow-hidden;
   }
 
   .progress-bar-fill {
-    @apply h-full rounded-full bg-ledger-400 transition-all;
+    @apply h-full rounded-full bg-green-500 transition-all duration-300;
+  }
+
+  .stat-value {
+    @apply text-xl font-semibold text-ink;
+  }
+
+  .stat-label {
+    @apply text-2xs text-muted font-medium uppercase tracking-wider mt-0.5;
   }
 }

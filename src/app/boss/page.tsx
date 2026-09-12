@@ -29,11 +29,11 @@ export default function BossPage() {
   }, [filter]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-7">
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-xl font-semibold">Team Overview</h1>
-          <p className="text-sm text-muted mt-0.5">Pick an employee to see their full workload.</p>
+          <h1 className="text-2xl font-bold text-ink">Team Overview</h1>
+          <p className="text-sm text-muted mt-1">Pick an employee to see their full workload.</p>
         </div>
         <div className="flex items-center gap-2">
           <a href="/api/excel/export" className="btn text-xs">
@@ -48,9 +48,9 @@ export default function BossPage() {
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`btn text-xs ${filter === f ? "bg-ink text-paper" : ""}`}
+            className={`btn text-xs ${filter === f ? "bg-green-600 text-white border-green-600 hover:bg-green-700" : ""}`}
           >
-            {f.charAt(0) + f.slice(1).toLowerCase()}
+            {f === "ALL" ? "All" : f.charAt(0) + f.slice(1).toLowerCase()}
           </button>
         ))}
       </div>
@@ -72,36 +72,43 @@ export default function BossPage() {
           <tbody>
             {loading && (
               <tr>
-                <td colSpan={8} className="text-muted text-center py-8">Loading...</td>
+                <td colSpan={8} className="text-muted text-center py-10">Loading...</td>
               </tr>
             )}
             {!loading && rows.length === 0 && (
               <tr>
-                <td colSpan={8} className="text-muted text-center py-8">No employees yet — add them under Employees.</td>
+                <td colSpan={8} className="text-muted text-center py-10">No employees yet — add them under Employees.</td>
               </tr>
             )}
             {rows.map((r) => (
               <tr key={r.id}>
-                <td className="font-medium">{r.name}</td>
                 <td>
-                  <span className="tag bg-ink/5 text-ink/60 text-[10px]">
-                    {r.role.charAt(0) + r.role.slice(1).toLowerCase()}
-                  </span>
-                </td>
-                <td className="text-center">{r.total}</td>
-                <td className="text-center">{r.completed}</td>
-                <td className="text-center">{r.pending}</td>
-                <td className={`text-center ${r.overdue > 0 ? "text-rust font-medium" : ""}`}>{r.overdue}</td>
-                <td>
-                  <div className="flex items-center gap-2">
-                    <div className="progress-bar flex-1 w-16">
-                      <div className="progress-bar-fill" style={{ width: `${r.progress}%` }} />
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-xs font-bold shrink-0">
+                      {r.name.charAt(0)}
                     </div>
-                    <span className="text-xs text-muted w-8 text-right">{r.progress}%</span>
+                    <span className="font-medium">{r.name}</span>
                   </div>
                 </td>
                 <td>
-                  <Link href={`/boss/employee/${r.id}`} className="text-xs text-ledger-600 hover:text-ledger-700 transition-colors">
+                  <span className="tag bg-green-50 text-green-700">
+                    {r.role.charAt(0) + r.role.slice(1).toLowerCase()}
+                  </span>
+                </td>
+                <td className="text-center font-medium">{r.total}</td>
+                <td className="text-center">{r.completed}</td>
+                <td className="text-center">{r.pending}</td>
+                <td className={`text-center ${r.overdue > 0 ? "text-rust font-semibold" : ""}`}>{r.overdue}</td>
+                <td>
+                  <div className="flex items-center gap-2.5">
+                    <div className="progress-bar flex-1 w-20">
+                      <div className="progress-bar-fill" style={{ width: `${r.progress}%` }} />
+                    </div>
+                    <span className="text-xs text-muted font-medium w-8 text-right">{r.progress}%</span>
+                  </div>
+                </td>
+                <td>
+                  <Link href={`/boss/employee/${r.id}`} className="text-xs font-medium text-green-600 hover:text-green-800 transition-colors">
                     View &rarr;
                   </Link>
                 </td>
@@ -140,7 +147,7 @@ function ImportButton() {
     <label className="btn text-xs cursor-pointer">
       {busy ? "Importing..." : "Import Excel"}
       <input type="file" accept=".xlsx,.xls" className="hidden" onChange={onFile} />
-      {msg && <span className="ml-2 text-muted text-[11px]">{msg}</span>}
+      {msg && <span className="ml-2 text-muted text-2xs">{msg}</span>}
     </label>
   );
 }

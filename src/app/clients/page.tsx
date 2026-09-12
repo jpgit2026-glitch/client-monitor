@@ -44,11 +44,11 @@ export default function ClientsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-7">
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-xl font-semibold">Clients</h1>
-          <p className="text-sm text-muted mt-0.5">{rows.length} clients</p>
+          <h1 className="text-2xl font-bold text-ink">Clients</h1>
+          <p className="text-sm text-muted mt-1">{rows.length} clients</p>
         </div>
         <button className="btn btn-primary text-xs" onClick={() => setShowNew((v) => !v)}>
           {showNew ? "Cancel" : "+ New client"}
@@ -56,12 +56,12 @@ export default function ClientsPage() {
       </div>
 
       {showNew && (
-        <form onSubmit={createClient} className="card p-5 flex items-end gap-3">
+        <form onSubmit={createClient} className="card-elevated p-6 flex items-end gap-4">
           <div className="flex-1">
-            <label className="block text-sm font-medium text-ink/70 mb-1">Client name</label>
+            <label className="block text-sm font-medium text-ink mb-2">Client name</label>
             <input className="input w-full" value={newName} onChange={(e) => setNewName(e.target.value)} autoFocus placeholder="e.g. ABC Corporation" />
           </div>
-          <button type="submit" className="btn btn-primary text-xs">Add</button>
+          <button type="submit" className="btn btn-primary text-sm px-5">Add</button>
         </form>
       )}
 
@@ -87,25 +87,25 @@ export default function ClientsPage() {
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td colSpan={6} className="text-muted text-center py-8">No clients found.</td>
+                <td colSpan={6} className="text-muted text-center py-10">No clients found.</td>
               </tr>
             )}
             {rows.map((c) => (
               <tr key={c.id}>
                 <td className="font-medium">{c.name}</td>
-                <td className="text-center">{c.total}</td>
+                <td className="text-center font-medium">{c.total}</td>
                 <td className="text-center">{c.completed}</td>
-                <td className={`text-center ${c.overdue > 0 ? "text-rust font-medium" : ""}`}>{c.overdue}</td>
+                <td className={`text-center ${c.overdue > 0 ? "text-rust font-semibold" : ""}`}>{c.overdue}</td>
                 <td>
-                  <div className="flex items-center gap-2">
-                    <div className="progress-bar flex-1 w-16">
+                  <div className="flex items-center gap-2.5">
+                    <div className="progress-bar flex-1 w-20">
                       <div className="progress-bar-fill" style={{ width: `${c.progress}%` }} />
                     </div>
-                    <span className="text-xs text-muted w-8 text-right">{c.progress}%</span>
+                    <span className="text-xs text-muted font-medium w-8 text-right">{c.progress}%</span>
                   </div>
                 </td>
                 <td>
-                  <Link href={`/clients/${c.id}`} className="text-xs text-ledger-600 hover:text-ledger-700 transition-colors">
+                  <Link href={`/clients/${c.id}`} className="text-xs font-medium text-green-600 hover:text-green-800 transition-colors">
                     View &rarr;
                   </Link>
                 </td>
