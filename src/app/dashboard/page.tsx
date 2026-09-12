@@ -206,11 +206,11 @@ function AssignTaskForm({
 function Section({ title, count, accent, children }: { title: string; count: number; accent?: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="flex items-center gap-2.5 mb-3">
+      <div className="flex items-center gap-2.5 mb-4">
         <h2 className={`section-title ${accent ?? ""}`}>{title}</h2>
         <span className="text-2xs text-muted bg-green-100/60 rounded-full px-2.5 py-0.5 font-semibold">{count}</span>
       </div>
-      <div className="card divide-y divide-rule/40">{children}</div>
+      <div className="space-y-3">{children}</div>
     </div>
   );
 }

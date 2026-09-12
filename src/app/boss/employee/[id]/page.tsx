@@ -80,7 +80,7 @@ export default function EmployeeDetailPage({ params }: { params: { id: string } 
               <h2 className={`section-title ${g.accent ?? ""}`}>{g.title}</h2>
               <span className="text-2xs text-muted bg-green-100/60 rounded-full px-2.5 py-0.5 font-semibold">{g.list.length}</span>
             </div>
-            <div className="card divide-y divide-rule/40">
+            <div className="space-y-3">
               {g.list.map((t) => (
                 <TaskRow key={t.id} task={t} onChange={load} showNotes />
               ))}

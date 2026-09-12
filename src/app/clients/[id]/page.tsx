@@ -60,7 +60,7 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
           <h2 className="section-title">Active work</h2>
           <span className="text-2xs text-muted bg-green-100/60 rounded-full px-2.5 py-0.5 font-semibold">{active.length}</span>
         </div>
-        <div className="card divide-y divide-rule/40">
+        <div className="space-y-3">
           {active.length === 0 && <p className="p-6 text-sm text-muted">No active work for this client.</p>}
           {active.map((t) => (
             <TaskRow key={t.id} task={t} onChange={load} />

@@ -103,62 +103,87 @@ export default function TaskRow({
   const hasNotes = showNotes && task.notes && task.notes.trim();
 
   return (
-    <div className="px-5 py-4 group">
+    <div className="px-5 py-5 group hover:bg-green-50/30 transition-colors rounded-xl border border-rule/50 bg-white shadow-card">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             {showPriority && (
               <span className={`tag ${PRIORITY_STYLE[task.priority!]}`}>
                 {PRIORITY_LABEL[task.priority!]}
               </span>
             )}
-            <Link href={`/tasks/${task.id}`} className="text-sm font-medium text-ink hover:text-green-700 transition-colors truncate">
+            <Link href={`/tasks/${task.id}`} className="text-sm font-semibold text-ink hover:text-green-700 transition-colors truncate">
               {task.title}
             </Link>
           </div>
-          <div className="flex items-center gap-2 mt-1.5 text-xs text-muted">
-            {task.client && <span>{task.client.name}</span>}
-            {task.assignedTo && <><span className="text-rule">&middot;</span><span>{task.assignedTo.name}</span></>}
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-2 text-xs text-muted">
+            {task.client && (
+              <span className="inline-flex items-center gap-1">
+                <svg className="w-3 h-3 text-muted/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0H5m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                {task.client.name}
+              </span>
+            )}
+            {task.assignedTo && (
+              <>
+                <span className="text-rule">&middot;</span>
+                <span className="inline-flex items-center gap-1">
+                  <svg className="w-3 h-3 text-muted/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                  {task.assignedTo.name}
+                </span>
+              </>
+            )}
             {task.createdBy && <><span className="text-rule">&middot;</span><span className="text-muted/60">from {task.createdBy.name}</span></>}
             {task.dueDate && (
               <>
                 <span className="text-rule">&middot;</span>
-                <span className={task.isOverdue ? "text-rust font-semibold" : ""}>{formatDate(task.dueDate)}</span>
+                <span className={`inline-flex items-center gap-1 ${task.isOverdue ? "text-rust font-semibold" : ""}`}>
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                  {formatDate(task.dueDate)}
+                </span>
               </>
             )}
             {commentCount > 0 && (
               <>
                 <span className="text-rule">&middot;</span>
-                <Link href={`/tasks/${task.id}`} className="hover:text-green-600 transition-colors">
+                <Link href={`/tasks/${task.id}`} className="hover:text-green-600 transition-colors inline-flex items-center gap-1">
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" /></svg>
                   {commentCount} {commentCount === 1 ? "note" : "notes"}
                 </Link>
               </>
             )}
           </div>
+
+          {/* Progress bar inline on mobile, visible always */}
+          <div className="mt-3 flex items-center gap-3">
+            <span className={`tag ${STATUS_STYLE[task.status] ?? "bg-ink/5 text-ink/50"}`}>{STATUS_LABEL[task.status] ?? task.status}</span>
+            {task.isOverdue && <span className="tag bg-rust/8 text-rust">Overdue</span>}
+            <div className="flex items-center gap-2 flex-1 max-w-[200px]">
+              <div className="progress-bar flex-1 h-2">
+                <div className="progress-bar-fill h-2" style={{ width: `${task.progressPct}%` }} />
+              </div>
+              <span className="text-2xs text-muted font-semibold w-8 text-right">{task.progressPct}%</span>
+            </div>
+          </div>
+
           {hasNotes && (
-            <div className="mt-2 flex items-start gap-2 text-xs text-ink/55 bg-green-50/60 rounded-md px-3 py-2">
+            <div className="mt-3 flex items-start gap-2 text-xs text-ink/55 bg-green-50/60 rounded-lg px-3.5 py-2.5 border border-green-100/60">
               <span className="text-green-600 font-semibold shrink-0">Note:</span>
               <span className="leading-relaxed">{task.notes}</span>
             </div>
           )}
           {blocked && (
-            <p className="text-xs text-amber mt-2 flex items-center gap-1.5">
+            <p className="text-xs text-amber mt-3 flex items-center gap-1.5">
               <span className="w-4 h-4 inline-flex items-center justify-center rounded-full bg-amber/12 text-[9px] font-bold">!</span>
               Blocked by: {task.dependsOn!.title}
             </p>
           )}
         </div>
-        <div className="flex items-center gap-3 shrink-0">
-          {task.isOverdue && <span className="tag bg-rust/8 text-rust">Overdue</span>}
-          <span className={`tag ${STATUS_STYLE[task.status] ?? "bg-ink/5 text-ink/50"}`}>{STATUS_LABEL[task.status] ?? task.status}</span>
-          <div className="w-20 flex items-center gap-2">
-            <div className="progress-bar flex-1">
-              <div className="progress-bar-fill" style={{ width: `${task.progressPct}%` }} />
-            </div>
-            <span className="text-2xs text-muted font-medium w-7 text-right">{task.progressPct}%</span>
-          </div>
+        <div className="flex items-center gap-2 shrink-0 pt-1">
+          <Link href={`/tasks/${task.id}`} className="btn text-xs px-3 py-1.5">
+            View
+          </Link>
           {!readOnly && (
-            <button className="btn text-xs px-3 py-1.5" onClick={() => setOpen((v) => !v)}>
+            <button className="btn btn-primary text-xs px-3 py-1.5" onClick={() => setOpen((v) => !v)}>
               {open ? "Close" : "Update"}
             </button>
           )}
