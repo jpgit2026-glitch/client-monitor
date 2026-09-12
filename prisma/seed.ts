@@ -7,8 +7,14 @@ async function main() {
   const bossPin = await bcrypt.hash("1234", 10);
   const boss = await db.employee.upsert({
     where: { id: "seed-boss" },
-    update: {},
-    create: { id: "seed-boss", name: "Boss", role: "BOSS", pinHash: bossPin },
+    update: { name: "Joebert Patrick B. Go", pinHash: bossPin },
+    create: { id: "seed-boss", name: "Joebert Patrick B. Go", role: "BOSS", pinHash: bossPin },
+  });
+
+  const rhys = await db.employee.upsert({
+    where: { id: "seed-rhys" },
+    update: { name: "Rhys Dominique B. Go", pinHash: bossPin },
+    create: { id: "seed-rhys", name: "Rhys Dominique B. Go", role: "BOSS", pinHash: bossPin },
   });
 
   const mariaPin = await bcrypt.hash("1111", 10);
@@ -134,8 +140,8 @@ async function main() {
     },
   });
 
-  console.log("Seeded:", { boss: boss.name, maria: maria.name, carlo: carlo.name });
-  console.log("Sign in with: Boss / PIN 1234, Maria / PIN 1111, Carlo / PIN 2222");
+  console.log("Seeded:", { boss: boss.name, rhys: rhys.name, maria: maria.name, carlo: carlo.name });
+  console.log("Sign in with: Joebert / PIN 1234, Rhys / PIN 1234, Maria / PIN 1111, Carlo / PIN 2222");
 }
 
 main()

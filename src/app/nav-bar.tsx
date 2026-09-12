@@ -59,7 +59,7 @@ export default function NavBar({ name, role }: Props) {
               {name.charAt(0)}
             </div>
             <div className="text-right hidden sm:block">
-              <p className="text-sm font-medium leading-tight">{name}</p>
+              <p className="text-sm font-medium leading-tight">{name.split(" ")[0]}</p>
               <p className="text-2xs text-muted leading-tight">{role.charAt(0) + role.slice(1).toLowerCase()}</p>
             </div>
           </div>
