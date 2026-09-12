@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 
 export async function GET(req: NextRequest) {
-  const roleFilter = req.nextUrl.searchParams.get("role"); // ACCOUNTING | LIAISON | null
+  const roleFilter = req.nextUrl.searchParams.get("role");
   const includeManagers = req.nextUrl.searchParams.get("all") === "1";
 
   const employees = await db.employee.findMany({
@@ -32,6 +32,7 @@ export async function GET(req: NextRequest) {
 
     return {
       id: e.id,
+      username: e.username,
       name: e.name,
       role: e.role,
       total,
@@ -46,10 +47,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const { name, role, pin } = await req.json();
+  const { name, username, role, pin } = await req.json();
 
-  if (!name || !role || !pin) {
-    return NextResponse.json({ error: "Name, role, and a PIN are required." }, { status: 400 });
+  if (!name || !username || !role || !pin) {
+    return NextResponse.json({ error: "Name, username, role, and a PIN are required." }, { status: 400 });
   }
   if (!["BOSS", "ADMIN", "ACCOUNTING", "LIAISON"].includes(role)) {
     return NextResponse.json({ error: "Invalid role." }, { status: 400 });
@@ -58,10 +59,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "PIN should be at least 4 digits." }, { status: 400 });
   }
 
+  const uname = String(username).toLowerCase().trim();
+  const existing = await db.employee.findUnique({ where: { username: uname } });
+  if (existing) {
+    return NextResponse.json({ error: "Username already taken." }, { status: 400 });
+  }
+
   const pinHash = await bcrypt.hash(String(pin), 10);
   const employee = await db.employee.create({
-    data: { name, role, pinHash },
+    data: { name, username: uname, role, pinHash },
   });
 
-  return NextResponse.json({ employee: { id: employee.id, name: employee.name, role: employee.role } });
+  return NextResponse.json({ employee: { id: employee.id, name: employee.name, username: employee.username, role: employee.role } });
 }

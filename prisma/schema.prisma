@@ -37,6 +37,7 @@ enum Priority {
 
 model Employee {
   id           String   @id @default(cuid())
+  username     String   @unique
   name         String
   pinHash      String
   role         Role

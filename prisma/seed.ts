@@ -7,41 +7,41 @@ async function main() {
   const bossPin = await bcrypt.hash("1234", 10);
   const boss = await db.employee.upsert({
     where: { id: "seed-boss" },
-    update: { name: "Joebert Patrick B. Go", pinHash: bossPin },
-    create: { id: "seed-boss", name: "Joebert Patrick B. Go", role: "BOSS", pinHash: bossPin },
+    update: { name: "Joebert Patrick B. Go", username: "joebert", pinHash: bossPin },
+    create: { id: "seed-boss", username: "joebert", name: "Joebert Patrick B. Go", role: "BOSS", pinHash: bossPin },
   });
 
   const rhys = await db.employee.upsert({
     where: { id: "seed-rhys" },
-    update: { name: "Rhys Dominique B. Go", pinHash: bossPin },
-    create: { id: "seed-rhys", name: "Rhys Dominique B. Go", role: "BOSS", pinHash: bossPin },
+    update: { name: "Rhys Dominique B. Go", username: "rhys", pinHash: bossPin },
+    create: { id: "seed-rhys", username: "rhys", name: "Rhys Dominique B. Go", role: "BOSS", pinHash: bossPin },
   });
 
   const adminPin = await bcrypt.hash("1234", 10);
   const john = await db.employee.upsert({
     where: { id: "seed-john" },
-    update: { name: "John Bartolome", pinHash: adminPin },
-    create: { id: "seed-john", name: "John Bartolome", role: "ADMIN", pinHash: adminPin },
+    update: { name: "John Bartolome", username: "john", pinHash: adminPin },
+    create: { id: "seed-john", username: "john", name: "John Bartolome", role: "ADMIN", pinHash: adminPin },
   });
 
   const jelea = await db.employee.upsert({
     where: { id: "seed-jelea" },
-    update: { name: "Jelea-Dey Corral", pinHash: adminPin },
-    create: { id: "seed-jelea", name: "Jelea-Dey Corral", role: "ADMIN", pinHash: adminPin },
+    update: { name: "Jelea-Dey Corral", username: "jelea", pinHash: adminPin },
+    create: { id: "seed-jelea", username: "jelea", name: "Jelea-Dey Corral", role: "ADMIN", pinHash: adminPin },
   });
 
   const mariaPin = await bcrypt.hash("1111", 10);
   const maria = await db.employee.upsert({
     where: { id: "seed-maria" },
-    update: {},
-    create: { id: "seed-maria", name: "Maria", role: "ACCOUNTING", pinHash: mariaPin },
+    update: { username: "maria" },
+    create: { id: "seed-maria", username: "maria", name: "Maria", role: "ACCOUNTING", pinHash: mariaPin },
   });
 
   const carloPin = await bcrypt.hash("2222", 10);
   const carlo = await db.employee.upsert({
     where: { id: "seed-carlo" },
-    update: {},
-    create: { id: "seed-carlo", name: "Carlo", role: "LIAISON", pinHash: carloPin },
+    update: { username: "carlo" },
+    create: { id: "seed-carlo", username: "carlo", name: "Carlo", role: "LIAISON", pinHash: carloPin },
   });
 
   const client = await db.client.upsert({

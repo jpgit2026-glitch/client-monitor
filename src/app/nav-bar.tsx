@@ -58,12 +58,9 @@ export default function NavBar({ name, role }: Props) {
             <div className="w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-xs font-bold">
               {name.charAt(0)}
             </div>
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-medium leading-tight">{name.split(" ")[0]}</p>
-              <p className="text-2xs text-muted leading-tight">{role.charAt(0) + role.slice(1).toLowerCase()}</p>
-            </div>
+            <p className="text-sm font-medium leading-tight hidden sm:block">{name.split(" ")[0]}</p>
           </div>
-          <button onClick={logout} className="btn-ghost btn text-xs px-2.5 py-1.5">
+          <button onClick={logout} className="btn btn-primary text-xs px-3 py-1.5">
             Sign out
           </button>
         </div>

@@ -1,23 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-
-type Employee = { id: string; name: string; role: string };
 
 export default function LoginPage() {
   const router = useRouter();
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [employeeId, setEmployeeId] = useState("");
+  const [username, setUsername] = useState("");
   const [pin, setPin] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    fetch("/api/auth/login")
-      .then((r) => r.json())
-      .then((d) => setEmployees(d.employees ?? []));
-  }, []);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -26,7 +17,7 @@ export default function LoginPage() {
     const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ employeeId, pin }),
+      body: JSON.stringify({ username, pin }),
     });
     setLoading(false);
     if (!res.ok) {
@@ -51,18 +42,16 @@ export default function LoginPage() {
 
         <form onSubmit={submit} className="card-elevated p-7 space-y-5">
           <div>
-            <label className="block text-sm font-medium text-ink mb-2">Your name</label>
-            <select
+            <label className="block text-sm font-medium text-ink mb-2">Username</label>
+            <input
+              type="text"
               className="input w-full"
-              value={employeeId}
-              onChange={(e) => setEmployeeId(e.target.value)}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Enter your username"
+              autoComplete="username"
               required
-            >
-              <option value="">Choose your name...</option>
-              {employees.map((emp) => (
-                <option key={emp.id} value={emp.id}>{emp.name}</option>
-              ))}
-            </select>
+            />
           </div>
 
           <div>
