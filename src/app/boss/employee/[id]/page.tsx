@@ -24,6 +24,12 @@ export default function EmployeeDetailPage({ params }: { params: { id: string } 
   if (loading) return <p className="text-sm text-muted py-16 text-center">Loading...</p>;
   if (!employee) return <p className="text-sm text-muted py-16 text-center">Employee not found.</p>;
 
+  const total = tasks.length;
+  const done = tasks.filter((t) => t.status === "COMPLETED").length;
+  const overdue = tasks.filter((t) => t.isOverdue).length;
+  const inProgress = tasks.filter((t) => t.status === "IN_PROGRESS").length;
+  const avgProgress = total > 0 ? Math.round(tasks.reduce((s, t) => s + t.progressPct, 0) / total) : 0;
+
   const groups: { title: string; list: TaskLike[]; accent?: string }[] = [
     { title: "Overdue", list: tasks.filter((t) => t.isOverdue), accent: "text-rust" },
     { title: "In progress", list: tasks.filter((t) => t.status === "IN_PROGRESS" && !t.isOverdue) },
@@ -36,22 +42,37 @@ export default function EmployeeDetailPage({ params }: { params: { id: string } 
     <div className="space-y-8">
       <div>
         <button onClick={() => router.back()} className="text-sm text-muted hover:text-green-700 transition-colors mb-4">
-          &larr; Back
+          &larr; Back to team
         </button>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-sm font-bold">
+          <div className="w-12 h-12 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-lg font-bold">
             {employee.name.charAt(0)}
           </div>
           <div>
             <h1 className="text-2xl font-bold text-ink">{employee.name}</h1>
-            <div className="flex items-center gap-2 mt-0.5">
-              <span className="tag bg-green-50 text-green-700">{employee.role.charAt(0) + employee.role.slice(1).toLowerCase()}</span>
-              <span className="text-sm text-muted">{tasks.length} tasks total</span>
-            </div>
+            <span className="tag bg-green-50 text-green-700 mt-0.5">{employee.role.charAt(0) + employee.role.slice(1).toLowerCase()}</span>
           </div>
         </div>
       </div>
 
+      {/* Summary stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+        <StatCard value={total} label="Total tasks" />
+        <StatCard value={done} label="Completed" />
+        <StatCard value={inProgress} label="In progress" />
+        <StatCard value={overdue} label="Overdue" highlight={overdue > 0} />
+        <div className="card-elevated p-4 flex flex-col items-center justify-center">
+          <div className="flex items-center gap-2">
+            <div className="progress-bar w-16 h-2">
+              <div className="progress-bar-fill h-2" style={{ width: `${avgProgress}%` }} />
+            </div>
+            <span className="text-lg font-bold text-green-700">{avgProgress}%</span>
+          </div>
+          <div className="stat-label mt-1">Avg progress</div>
+        </div>
+      </div>
+
+      {/* Task groups — Boss can update inline */}
       {groups.map((g) =>
         g.list.length > 0 ? (
           <div key={g.title}>
@@ -61,7 +82,7 @@ export default function EmployeeDetailPage({ params }: { params: { id: string } 
             </div>
             <div className="card divide-y divide-rule/40">
               {g.list.map((t) => (
-                <TaskRow key={t.id} task={t} onChange={load} readOnly />
+                <TaskRow key={t.id} task={t} onChange={load} showNotes />
               ))}
             </div>
           </div>
@@ -69,6 +90,15 @@ export default function EmployeeDetailPage({ params }: { params: { id: string } 
       )}
 
       {tasks.length === 0 && <p className="text-sm text-muted">No tasks assigned yet.</p>}
+    </div>
+  );
+}
+
+function StatCard({ value, label, highlight = false }: { value: number; label: string; highlight?: boolean }) {
+  return (
+    <div className="card-elevated p-4 text-center">
+      <div className={`stat-value ${highlight ? "text-rust" : ""}`}>{value}</div>
+      <div className="stat-label">{label}</div>
     </div>
   );
 }

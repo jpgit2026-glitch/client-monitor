@@ -71,10 +71,12 @@ export default function TaskRow({
   task,
   onChange,
   readOnly = false,
+  showNotes = false,
 }: {
   task: TaskLike;
   onChange?: () => void;
   readOnly?: boolean;
+  showNotes?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -98,6 +100,7 @@ export default function TaskRow({
   const blocked = task.dependsOn && task.dependsOn.status !== "COMPLETED";
   const commentCount = task._count?.comments ?? 0;
   const showPriority = task.priority && task.priority !== "NORMAL";
+  const hasNotes = showNotes && task.notes && task.notes.trim();
 
   return (
     <div className="px-5 py-4 group">
@@ -132,6 +135,12 @@ export default function TaskRow({
               </>
             )}
           </div>
+          {hasNotes && (
+            <div className="mt-2 flex items-start gap-2 text-xs text-ink/55 bg-green-50/60 rounded-md px-3 py-2">
+              <span className="text-green-600 font-semibold shrink-0">Note:</span>
+              <span className="leading-relaxed">{task.notes}</span>
+            </div>
+          )}
           {blocked && (
             <p className="text-xs text-amber mt-2 flex items-center gap-1.5">
               <span className="w-4 h-4 inline-flex items-center justify-center rounded-full bg-amber/12 text-[9px] font-bold">!</span>
@@ -180,8 +189,8 @@ export default function TaskRow({
             <input type="date" className="input w-full text-sm" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
           </div>
           <div>
-            <label className="block text-2xs font-semibold text-muted mb-1.5 uppercase tracking-wider">Notes</label>
-            <input className="input w-full text-sm" value={notes} onChange={(e) => setNotes(e.target.value)} />
+            <label className="block text-2xs font-semibold text-muted mb-1.5 uppercase tracking-wider">Status note</label>
+            <input className="input w-full text-sm" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Why is this pending?" />
           </div>
           <div className="col-span-2 sm:col-span-4 flex gap-2 pt-1">
             <button onClick={save} disabled={saving} className="btn btn-primary text-xs px-5">
