@@ -70,13 +70,14 @@ export default function TaskRow({
   const [status, setStatus] = useState(task.status);
   const [progress, setProgress] = useState(task.progressPct);
   const [notes, setNotes] = useState(task.notes ?? "");
+  const [dueDate, setDueDate] = useState(task.dueDate ? new Date(task.dueDate).toISOString().slice(0, 10) : "");
 
   async function save() {
     setSaving(true);
     await fetch(`/api/tasks/${task.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status, progressPct: progress, notes }),
+      body: JSON.stringify({ status, progressPct: progress, notes, dueDate: dueDate || null }),
     });
     setSaving(false);
     setOpen(false);
@@ -129,7 +130,7 @@ export default function TaskRow({
       </div>
 
       {open && !readOnly && (
-        <div className="mt-3 pt-3 border-t border-rule grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="mt-3 pt-3 border-t border-rule grid grid-cols-1 sm:grid-cols-4 gap-3">
           <div>
             <label className="block text-xs text-ink/60 mb-1">Status</label>
             <select className="input w-full" value={status} onChange={(e) => setStatus(e.target.value)}>
@@ -151,11 +152,15 @@ export default function TaskRow({
               onChange={(e) => setProgress(Number(e.target.value))}
             />
           </div>
-          <div className="sm:col-span-1">
+          <div>
+            <label className="block text-xs text-ink/60 mb-1">Deadline</label>
+            <input type="date" className="input w-full" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+          </div>
+          <div>
             <label className="block text-xs text-ink/60 mb-1">Notes</label>
             <input className="input w-full" value={notes} onChange={(e) => setNotes(e.target.value)} />
           </div>
-          <div className="sm:col-span-3 flex gap-2">
+          <div className="sm:col-span-4 flex gap-2">
             <button onClick={save} disabled={saving} className="btn btn-primary text-xs">
               {saving ? "Saving..." : "Save update"}
             </button>
