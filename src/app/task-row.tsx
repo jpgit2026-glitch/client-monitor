@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import TaskModal from "./task-modal";
 
 export type TaskLike = {
   id: string;
@@ -21,8 +21,6 @@ export type TaskLike = {
   dependsOn?: { title: string; status: string } | null;
   _count?: { comments: number };
 };
-
-const STATUS_OPTIONS = ["PENDING", "IN_PROGRESS", "WAITING_FOR_CLIENT", "FOR_REVIEW", "COMPLETED", "CANCELLED"];
 
 const STATUS_LABEL: Record<string, string> = {
   PENDING: "Pending",
@@ -78,24 +76,7 @@ export default function TaskRow({
   readOnly?: boolean;
   showNotes?: boolean;
 }) {
-  const [open, setOpen] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [status, setStatus] = useState(task.status);
-  const [progress, setProgress] = useState(task.progressPct);
-  const [notes, setNotes] = useState(task.notes ?? "");
-  const [dueDate, setDueDate] = useState(task.dueDate ? new Date(task.dueDate).toISOString().slice(0, 10) : "");
-
-  async function save() {
-    setSaving(true);
-    await fetch(`/api/tasks/${task.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status, progressPct: progress, notes, dueDate: dueDate || null }),
-    });
-    setSaving(false);
-    setOpen(false);
-    onChange?.();
-  }
+  const [modal, setModal] = useState<"view" | "edit" | null>(null);
 
   const blocked = task.dependsOn && task.dependsOn.status !== "COMPLETED";
   const commentCount = task._count?.comments ?? 0;
@@ -112,9 +93,9 @@ export default function TaskRow({
                 {PRIORITY_LABEL[task.priority!]}
               </span>
             )}
-            <Link href={`/tasks/${task.id}`} className="text-sm font-semibold text-ink hover:text-green-700 transition-colors truncate">
+            <button onClick={() => setModal("view")} className="text-sm font-semibold text-ink hover:text-green-700 transition-colors truncate text-left">
               {task.title}
-            </Link>
+            </button>
           </div>
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-2 text-xs text-muted">
             {task.client && (
@@ -145,10 +126,10 @@ export default function TaskRow({
             {commentCount > 0 && (
               <>
                 <span className="text-rule">&middot;</span>
-                <Link href={`/tasks/${task.id}`} className="hover:text-green-600 transition-colors inline-flex items-center gap-1">
+                <button onClick={() => setModal("view")} className="hover:text-green-600 transition-colors inline-flex items-center gap-1">
                   <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" /></svg>
                   {commentCount} {commentCount === 1 ? "note" : "notes"}
-                </Link>
+                </button>
               </>
             )}
           </div>
@@ -179,53 +160,24 @@ export default function TaskRow({
           )}
         </div>
         <div className="flex items-center gap-2 shrink-0 pt-1">
-          <Link href={`/tasks/${task.id}`} className="btn text-xs px-3 py-1.5">
+          <button className="btn text-xs px-3 py-1.5" onClick={() => setModal("view")}>
             View
-          </Link>
+          </button>
           {!readOnly && (
-            <button className="btn btn-primary text-xs px-3 py-1.5" onClick={() => setOpen((v) => !v)}>
-              {open ? "Close" : "Update"}
+            <button className="btn btn-primary text-xs px-3 py-1.5" onClick={() => setModal("edit")}>
+              Update
             </button>
           )}
         </div>
       </div>
 
-      {open && !readOnly && (
-        <div className="mt-4 pt-4 border-t border-rule/40 grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div>
-            <label className="block text-2xs font-semibold text-muted mb-1.5 uppercase tracking-wider">Status</label>
-            <select className="input w-full text-sm" value={status} onChange={(e) => setStatus(e.target.value)}>
-              {STATUS_OPTIONS.map((s) => (
-                <option key={s} value={s}>{STATUS_LABEL[s]}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-2xs font-semibold text-muted mb-1.5 uppercase tracking-wider">Progress</label>
-            <input
-              type="number" min={0} max={100}
-              className="input w-full text-sm"
-              value={progress}
-              onChange={(e) => setProgress(Number(e.target.value))}
-            />
-          </div>
-          <div>
-            <label className="block text-2xs font-semibold text-muted mb-1.5 uppercase tracking-wider">Deadline</label>
-            <input type="date" className="input w-full text-sm" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
-          </div>
-          <div>
-            <label className="block text-2xs font-semibold text-muted mb-1.5 uppercase tracking-wider">Status note</label>
-            <input className="input w-full text-sm" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Why is this pending?" />
-          </div>
-          <div className="col-span-2 sm:col-span-4 flex gap-2 pt-1">
-            <button onClick={save} disabled={saving} className="btn btn-primary text-xs px-5">
-              {saving ? "Saving..." : "Save"}
-            </button>
-            <Link href={`/tasks/${task.id}`} className="btn btn-ghost text-xs">
-              Full details
-            </Link>
-          </div>
-        </div>
+      {modal && (
+        <TaskModal
+          taskId={task.id}
+          initialMode={modal}
+          onClose={() => setModal(null)}
+          onChange={onChange}
+        />
       )}
     </div>
   );
