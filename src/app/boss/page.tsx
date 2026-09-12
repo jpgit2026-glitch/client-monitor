@@ -30,12 +30,12 @@ export default function BossPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-lg font-medium">Team Overview</h1>
-          <p className="text-sm text-ink/60">Pick an employee to see their full workload.</p>
+          <h1 className="text-xl font-semibold">Team Overview</h1>
+          <p className="text-sm text-muted mt-0.5">Pick an employee to see their full workload.</p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           <a href="/api/excel/export" className="btn text-xs">
             Export to Excel
           </a>
@@ -43,28 +43,28 @@ export default function BossPage() {
         </div>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex gap-1.5">
         {(["ALL", "ACCOUNTING", "LIAISON"] as const).map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
             className={`btn text-xs ${filter === f ? "bg-ink text-paper" : ""}`}
           >
-            {f}
+            {f.charAt(0) + f.slice(1).toLowerCase()}
           </button>
         ))}
       </div>
 
-      <div className="card overflow-hidden">
+      <div className="card overflow-x-auto">
         <table>
           <thead>
             <tr>
               <th>Employee</th>
               <th>Role</th>
-              <th>Tasks</th>
-              <th>Completed</th>
-              <th>Pending</th>
-              <th>Overdue</th>
+              <th className="text-center">Tasks</th>
+              <th className="text-center">Done</th>
+              <th className="text-center">Pending</th>
+              <th className="text-center">Overdue</th>
               <th>Progress</th>
               <th></th>
             </tr>
@@ -72,30 +72,37 @@ export default function BossPage() {
           <tbody>
             {loading && (
               <tr>
-                <td colSpan={8} className="text-ink/40">
-                  Loading…
-                </td>
+                <td colSpan={8} className="text-muted text-center py-8">Loading...</td>
               </tr>
             )}
             {!loading && rows.length === 0 && (
               <tr>
-                <td colSpan={8} className="text-ink/40">
-                  No employees yet — add them under Employees.
-                </td>
+                <td colSpan={8} className="text-muted text-center py-8">No employees yet — add them under Employees.</td>
               </tr>
             )}
             {rows.map((r) => (
               <tr key={r.id}>
                 <td className="font-medium">{r.name}</td>
-                <td className="font-mono text-xs text-ink/60">{r.role}</td>
-                <td>{r.total}</td>
-                <td>{r.completed}</td>
-                <td>{r.pending}</td>
-                <td className={r.overdue > 0 ? "text-rust font-medium" : ""}>{r.overdue}</td>
-                <td className="font-mono">{r.progress}%</td>
                 <td>
-                  <Link href={`/boss/employee/${r.id}`} className="text-xs text-ledger-600 hover:underline">
-                    View →
+                  <span className="tag bg-ink/5 text-ink/60 text-[10px]">
+                    {r.role.charAt(0) + r.role.slice(1).toLowerCase()}
+                  </span>
+                </td>
+                <td className="text-center">{r.total}</td>
+                <td className="text-center">{r.completed}</td>
+                <td className="text-center">{r.pending}</td>
+                <td className={`text-center ${r.overdue > 0 ? "text-rust font-medium" : ""}`}>{r.overdue}</td>
+                <td>
+                  <div className="flex items-center gap-2">
+                    <div className="progress-bar flex-1 w-16">
+                      <div className="progress-bar-fill" style={{ width: `${r.progress}%` }} />
+                    </div>
+                    <span className="text-xs text-muted w-8 text-right">{r.progress}%</span>
+                  </div>
+                </td>
+                <td>
+                  <Link href={`/boss/employee/${r.id}`} className="text-xs text-ledger-600 hover:text-ledger-700 transition-colors">
+                    View &rarr;
                   </Link>
                 </td>
               </tr>
@@ -131,9 +138,9 @@ function ImportButton() {
 
   return (
     <label className="btn text-xs cursor-pointer">
-      {busy ? "Importing…" : "Import from Excel"}
+      {busy ? "Importing..." : "Import Excel"}
       <input type="file" accept=".xlsx,.xls" className="hidden" onChange={onFile} />
-      {msg && <span className="ml-2 text-ink/50 normal-case">{msg}</span>}
+      {msg && <span className="ml-2 text-muted text-[11px]">{msg}</span>}
     </label>
   );
 }

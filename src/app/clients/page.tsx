@@ -45,58 +45,68 @@ export default function ClientsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-lg font-medium">Clients</h1>
-          <p className="text-sm text-ink/60">{rows.length} clients</p>
+          <h1 className="text-xl font-semibold">Clients</h1>
+          <p className="text-sm text-muted mt-0.5">{rows.length} clients</p>
         </div>
-        <button className="btn text-xs" onClick={() => setShowNew((v) => !v)}>
+        <button className="btn btn-primary text-xs" onClick={() => setShowNew((v) => !v)}>
           {showNew ? "Cancel" : "+ New client"}
         </button>
       </div>
 
       {showNew && (
-        <form onSubmit={createClient} className="card p-4 flex items-end gap-3">
+        <form onSubmit={createClient} className="card p-5 flex items-end gap-3">
           <div className="flex-1">
-            <label className="block text-xs text-ink/60 mb-1">Client name</label>
-            <input className="input w-full" value={newName} onChange={(e) => setNewName(e.target.value)} autoFocus />
+            <label className="block text-sm font-medium text-ink/70 mb-1">Client name</label>
+            <input className="input w-full" value={newName} onChange={(e) => setNewName(e.target.value)} autoFocus placeholder="e.g. ABC Corporation" />
           </div>
-          <button type="submit" className="btn btn-primary text-xs">
-            Add
-          </button>
+          <button type="submit" className="btn btn-primary text-xs">Add</button>
         </form>
       )}
 
       <input
         className="input w-full max-w-sm"
-        placeholder="Search clients…"
+        placeholder="Search clients..."
         value={q}
         onChange={(e) => setQ(e.target.value)}
       />
 
-      <div className="card overflow-hidden">
+      <div className="card overflow-x-auto">
         <table>
           <thead>
             <tr>
               <th>Client</th>
-              <th>Tasks</th>
-              <th>Completed</th>
-              <th>Overdue</th>
+              <th className="text-center">Tasks</th>
+              <th className="text-center">Done</th>
+              <th className="text-center">Overdue</th>
               <th>Progress</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
+            {rows.length === 0 && (
+              <tr>
+                <td colSpan={6} className="text-muted text-center py-8">No clients found.</td>
+              </tr>
+            )}
             {rows.map((c) => (
               <tr key={c.id}>
                 <td className="font-medium">{c.name}</td>
-                <td>{c.total}</td>
-                <td>{c.completed}</td>
-                <td className={c.overdue > 0 ? "text-rust font-medium" : ""}>{c.overdue}</td>
-                <td className="font-mono">{c.progress}%</td>
+                <td className="text-center">{c.total}</td>
+                <td className="text-center">{c.completed}</td>
+                <td className={`text-center ${c.overdue > 0 ? "text-rust font-medium" : ""}`}>{c.overdue}</td>
                 <td>
-                  <Link href={`/clients/${c.id}`} className="text-xs text-ledger-600 hover:underline">
-                    View →
+                  <div className="flex items-center gap-2">
+                    <div className="progress-bar flex-1 w-16">
+                      <div className="progress-bar-fill" style={{ width: `${c.progress}%` }} />
+                    </div>
+                    <span className="text-xs text-muted w-8 text-right">{c.progress}%</span>
+                  </div>
+                </td>
+                <td>
+                  <Link href={`/clients/${c.id}`} className="text-xs text-ledger-600 hover:text-ledger-700 transition-colors">
+                    View &rarr;
                   </Link>
                 </td>
               </tr>

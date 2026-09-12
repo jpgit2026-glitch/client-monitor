@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import TaskRow, { TaskLike } from "../../task-row";
 
 type Summary = { total: number; completed: number; inProgress: number; pending: number; overdue: number };
 
 export default function ClientDetailPage({ params }: { params: { id: string } }) {
+  const router = useRouter();
   const [client, setClient] = useState<{ name: string; status: string } | null>(null);
   const [overallProgress, setOverallProgress] = useState(0);
   const [accounting, setAccounting] = useState<Summary | null>(null);
@@ -25,24 +27,26 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
     setLoading(false);
   }
 
-  useEffect(() => {
-    load();
-  }, [params.id]);
+  useEffect(() => { load(); }, [params.id]);
 
-  if (loading) return <p className="text-sm text-ink/50">Loading…</p>;
-  if (!client) return <p className="text-sm text-ink/50">Client not found.</p>;
+  if (loading) return <p className="text-sm text-muted py-12 text-center">Loading...</p>;
+  if (!client) return <p className="text-sm text-muted py-12 text-center">Client not found.</p>;
 
   const active = tasks.filter((t) => t.status !== "COMPLETED" && t.status !== "CANCELLED");
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-lg font-medium">{client.name}</h1>
-        <p className="text-sm text-ink/60">
-          Overall client work progress: <span className="font-mono">{overallProgress}%</span>
-        </p>
-        <div className="mt-2 h-1.5 bg-rule w-full max-w-md">
-          <div className="h-1.5 bg-ledger-600" style={{ width: `${overallProgress}%` }} />
+        <button onClick={() => router.back()} className="text-sm text-muted hover:text-ink transition-colors mb-3">
+          &larr; Back
+        </button>
+        <h1 className="text-xl font-semibold">{client.name}</h1>
+        <p className="text-sm text-muted mt-0.5">Overall progress</p>
+        <div className="mt-2 flex items-center gap-3 max-w-md">
+          <div className="progress-bar flex-1 h-2">
+            <div className="progress-bar-fill h-2" style={{ width: `${overallProgress}%` }} />
+          </div>
+          <span className="text-sm font-medium text-muted">{overallProgress}%</span>
         </div>
       </div>
 
@@ -52,9 +56,12 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
       </div>
 
       <div>
-        <h2 className="text-sm font-medium mb-2">All active work ({active.length})</h2>
-        <div className="card divide-y divide-rule">
-          {active.length === 0 && <p className="p-4 text-sm text-ink/40">No active work for this client.</p>}
+        <div className="flex items-center gap-2 mb-2">
+          <h2 className="section-title">Active work</h2>
+          <span className="text-xs text-muted bg-ink/5 rounded-full px-2 py-0.5">{active.length}</span>
+        </div>
+        <div className="card divide-y divide-rule/50">
+          {active.length === 0 && <p className="p-5 text-sm text-muted">No active work for this client.</p>}
           {active.map((t) => (
             <TaskRow key={t.id} task={t} onChange={load} />
           ))}
@@ -67,19 +74,19 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
 function SummaryCard({ title, summary }: { title: string; summary: Summary | null }) {
   if (!summary) return null;
   return (
-    <div className="card p-4">
-      <h3 className="text-sm font-medium mb-3">{title}</h3>
-      <dl className="grid grid-cols-2 gap-y-1 text-sm">
-        <dt className="text-ink/50">Tasks</dt>
-        <dd className="font-mono text-right">{summary.total}</dd>
-        <dt className="text-ink/50">Completed</dt>
-        <dd className="font-mono text-right">{summary.completed}</dd>
-        <dt className="text-ink/50">In progress</dt>
-        <dd className="font-mono text-right">{summary.inProgress}</dd>
-        <dt className="text-ink/50">Pending</dt>
-        <dd className="font-mono text-right">{summary.pending}</dd>
-        <dt className="text-ink/50">Overdue</dt>
-        <dd className={`font-mono text-right ${summary.overdue > 0 ? "text-rust" : ""}`}>{summary.overdue}</dd>
+    <div className="card p-5">
+      <h3 className="font-semibold text-sm mb-3">{title}</h3>
+      <dl className="grid grid-cols-2 gap-y-2 text-sm">
+        <dt className="text-muted">Tasks</dt>
+        <dd className="text-right font-medium">{summary.total}</dd>
+        <dt className="text-muted">Completed</dt>
+        <dd className="text-right font-medium">{summary.completed}</dd>
+        <dt className="text-muted">In progress</dt>
+        <dd className="text-right font-medium">{summary.inProgress}</dd>
+        <dt className="text-muted">Pending</dt>
+        <dd className="text-right font-medium">{summary.pending}</dd>
+        <dt className="text-muted">Overdue</dt>
+        <dd className={`text-right font-medium ${summary.overdue > 0 ? "text-rust" : ""}`}>{summary.overdue}</dd>
       </dl>
     </div>
   );

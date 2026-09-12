@@ -33,20 +33,20 @@ const STATUS_LABEL: Record<string, string> = {
   CANCELLED: "Cancelled",
 };
 
-const STATUS_TAG: Record<string, string> = {
-  PENDING: "border-ink/30 text-ink/60",
-  IN_PROGRESS: "border-ledger-600 text-ledger-600",
-  WAITING_FOR_CLIENT: "border-amber text-amber",
-  FOR_REVIEW: "border-ledger-400 text-ledger-400",
-  COMPLETED: "border-ledger-900 text-ledger-900 bg-ledger-50",
-  CANCELLED: "border-ink/20 text-ink/30",
+const STATUS_STYLE: Record<string, string> = {
+  PENDING: "bg-ink/5 text-ink/60",
+  IN_PROGRESS: "bg-ledger-50 text-ledger-700",
+  WAITING_FOR_CLIENT: "bg-amber/10 text-amber",
+  FOR_REVIEW: "bg-ledger-50 text-ledger-400",
+  COMPLETED: "bg-ledger-100 text-ledger-700",
+  CANCELLED: "bg-ink/5 text-ink/30",
 };
 
-const PRIORITY_TAG: Record<string, string> = {
-  URGENT: "bg-rust text-white border-rust",
-  HIGH: "border-rust text-rust",
+const PRIORITY_STYLE: Record<string, string> = {
+  URGENT: "bg-rust/15 text-rust font-semibold",
+  HIGH: "bg-amber/10 text-amber",
   NORMAL: "",
-  LOW: "border-ink/20 text-ink/40",
+  LOW: "bg-ink/5 text-ink/40",
 };
 
 const PRIORITY_LABEL: Record<string, string> = {
@@ -55,6 +55,17 @@ const PRIORITY_LABEL: Record<string, string> = {
   NORMAL: "Normal",
   LOW: "Low",
 };
+
+function formatDate(d: string) {
+  const date = new Date(d);
+  const now = new Date();
+  const diff = Math.ceil((date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  const formatted = date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  if (diff === 0) return "Today";
+  if (diff === 1) return "Tomorrow";
+  if (diff === -1) return "Yesterday";
+  return formatted;
+}
 
 export default function TaskRow({
   task,
@@ -89,40 +100,56 @@ export default function TaskRow({
   const showPriority = task.priority && task.priority !== "NORMAL";
 
   return (
-    <div className="p-4">
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0">
+    <div className="px-4 py-3.5 group">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             {showPriority && (
-              <span className={`tag text-[10px] py-0 ${PRIORITY_TAG[task.priority!]}`}>
+              <span className={`tag text-[10px] ${PRIORITY_STYLE[task.priority!]}`}>
                 {PRIORITY_LABEL[task.priority!]}
               </span>
             )}
-            <Link href={`/tasks/${task.id}`} className="text-sm font-medium truncate hover:text-ledger-600">
+            <Link href={`/tasks/${task.id}`} className="text-sm font-medium text-ink hover:text-ledger-600 transition-colors truncate">
               {task.title}
             </Link>
           </div>
-          <p className="text-xs text-ink/50 mt-0.5">
-            {task.client?.name}
-            {task.assignedTo && <> &middot; {task.assignedTo.name}</>}
-            {task.createdBy && <> &middot; <span className="text-ink/40">from {task.createdBy.name}</span></>}
-            {task.dueDate && <> &middot; Due {new Date(task.dueDate).toLocaleDateString()}</>}
-          </p>
+          <div className="flex items-center gap-1.5 mt-1 text-xs text-muted">
+            {task.client && <span>{task.client.name}</span>}
+            {task.assignedTo && <><span className="text-ink/20">|</span><span>{task.assignedTo.name}</span></>}
+            {task.createdBy && <><span className="text-ink/20">|</span><span className="text-ink/30">from {task.createdBy.name}</span></>}
+            {task.dueDate && (
+              <>
+                <span className="text-ink/20">|</span>
+                <span className={task.isOverdue ? "text-rust font-medium" : ""}>{formatDate(task.dueDate)}</span>
+              </>
+            )}
+            {commentCount > 0 && (
+              <>
+                <span className="text-ink/20">|</span>
+                <Link href={`/tasks/${task.id}`} className="hover:text-ink transition-colors">
+                  {commentCount} {commentCount === 1 ? "note" : "notes"}
+                </Link>
+              </>
+            )}
+          </div>
           {blocked && (
-            <p className="text-xs text-amber mt-1">Waiting on: {task.dependsOn!.title}</p>
+            <p className="text-xs text-amber mt-1.5 flex items-center gap-1">
+              <span className="w-3.5 h-3.5 inline-flex items-center justify-center rounded-full bg-amber/15 text-[9px]">!</span>
+              Blocked by: {task.dependsOn!.title}
+            </p>
           )}
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          {commentCount > 0 && (
-            <Link href={`/tasks/${task.id}`} className="text-xs text-ink/40 hover:text-ink/70">
-              {commentCount} {commentCount === 1 ? "note" : "notes"}
-            </Link>
-          )}
-          {task.isOverdue && <span className="tag border-rust text-rust">Overdue</span>}
-          <span className={`tag ${STATUS_TAG[task.status] ?? ""}`}>{STATUS_LABEL[task.status] ?? task.status}</span>
-          <span className="font-mono text-xs text-ink/50 w-9 text-right">{task.progressPct}%</span>
+        <div className="flex items-center gap-2.5 shrink-0">
+          {task.isOverdue && <span className="tag bg-rust/10 text-rust text-[10px]">Overdue</span>}
+          <span className={`tag ${STATUS_STYLE[task.status] ?? "bg-ink/5 text-ink/60"}`}>{STATUS_LABEL[task.status] ?? task.status}</span>
+          <div className="w-16 flex items-center gap-1.5">
+            <div className="progress-bar flex-1">
+              <div className="progress-bar-fill" style={{ width: `${task.progressPct}%` }} />
+            </div>
+            <span className="text-[10px] text-muted w-7 text-right">{task.progressPct}%</span>
+          </div>
           {!readOnly && (
-            <button className="btn text-xs" onClick={() => setOpen((v) => !v)}>
+            <button className="btn text-xs px-2.5 py-1" onClick={() => setOpen((v) => !v)}>
               {open ? "Close" : "Update"}
             </button>
           )}
@@ -130,42 +157,38 @@ export default function TaskRow({
       </div>
 
       {open && !readOnly && (
-        <div className="mt-3 pt-3 border-t border-rule grid grid-cols-1 sm:grid-cols-4 gap-3">
+        <div className="mt-3 pt-3 border-t border-rule/50 grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div>
-            <label className="block text-xs text-ink/60 mb-1">Status</label>
-            <select className="input w-full" value={status} onChange={(e) => setStatus(e.target.value)}>
+            <label className="block text-xs font-medium text-muted mb-1">Status</label>
+            <select className="input w-full text-sm" value={status} onChange={(e) => setStatus(e.target.value)}>
               {STATUS_OPTIONS.map((s) => (
-                <option key={s} value={s}>
-                  {STATUS_LABEL[s]}
-                </option>
+                <option key={s} value={s}>{STATUS_LABEL[s]}</option>
               ))}
             </select>
           </div>
           <div>
-            <label className="block text-xs text-ink/60 mb-1">Progress %</label>
+            <label className="block text-xs font-medium text-muted mb-1">Progress</label>
             <input
-              type="number"
-              min={0}
-              max={100}
-              className="input w-full"
+              type="number" min={0} max={100}
+              className="input w-full text-sm"
               value={progress}
               onChange={(e) => setProgress(Number(e.target.value))}
             />
           </div>
           <div>
-            <label className="block text-xs text-ink/60 mb-1">Deadline</label>
-            <input type="date" className="input w-full" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+            <label className="block text-xs font-medium text-muted mb-1">Deadline</label>
+            <input type="date" className="input w-full text-sm" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
           </div>
           <div>
-            <label className="block text-xs text-ink/60 mb-1">Notes</label>
-            <input className="input w-full" value={notes} onChange={(e) => setNotes(e.target.value)} />
+            <label className="block text-xs font-medium text-muted mb-1">Notes</label>
+            <input className="input w-full text-sm" value={notes} onChange={(e) => setNotes(e.target.value)} />
           </div>
-          <div className="sm:col-span-4 flex gap-2">
-            <button onClick={save} disabled={saving} className="btn btn-primary text-xs">
-              {saving ? "Saving..." : "Save update"}
+          <div className="col-span-2 sm:col-span-4 flex gap-2 pt-1">
+            <button onClick={save} disabled={saving} className="btn btn-primary text-xs px-4">
+              {saving ? "Saving..." : "Save"}
             </button>
-            <Link href={`/tasks/${task.id}`} className="btn text-xs">
-              Open details
+            <Link href={`/tasks/${task.id}`} className="btn btn-ghost text-xs">
+              Full details
             </Link>
           </div>
         </div>

@@ -42,7 +42,7 @@ export default function DashboardPage() {
     setShowAssignForm(true);
   }
 
-  if (loading) return <p className="text-sm text-ink/50">Loading...</p>;
+  if (loading) return <p className="text-sm text-muted py-12 text-center">Loading your work...</p>;
 
   const overdue = tasks.filter((t) => t.isOverdue);
   const open = tasks.filter((t) => !t.isOverdue && t.status !== "COMPLETED" && t.status !== "CANCELLED");
@@ -50,17 +50,17 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-lg font-medium mb-1">My Work</h1>
-          <p className="text-sm text-ink/60">{tasks.length} tasks assigned to you.</p>
+          <h1 className="text-xl font-semibold">My Work</h1>
+          <p className="text-sm text-muted mt-0.5">{tasks.length} tasks assigned to you</p>
         </div>
-        <div className="flex items-center gap-3">
-          <select className="input text-xs" value={sort} onChange={(e) => setSort(e.target.value)}>
-            <option value="dueDate">Sort: Deadline</option>
-            <option value="priority">Sort: Priority</option>
-            <option value="created">Sort: Newest</option>
-            <option value="progress">Sort: Progress</option>
+        <div className="flex items-center gap-2">
+          <select className="input text-xs py-1.5" value={sort} onChange={(e) => setSort(e.target.value)}>
+            <option value="dueDate">Deadline</option>
+            <option value="priority">Priority</option>
+            <option value="created">Newest</option>
+            <option value="progress">Progress</option>
           </select>
           <button onClick={handleOpenAssignForm} className="btn btn-primary text-xs">
             + Assign task
@@ -78,34 +78,33 @@ export default function DashboardPage() {
       )}
 
       {overdue.length > 0 && (
-        <Section title={`Overdue (${overdue.length})`} accent="text-rust">
+        <Section title="Overdue" count={overdue.length} accent="text-rust">
           {overdue.map((t) => <TaskRow key={t.id} task={t} onChange={load} />)}
         </Section>
       )}
 
-      <Section title={`Open work (${open.length})`}>
-        {open.length === 0 && <p className="text-sm text-ink/40 p-4">Nothing open — nice.</p>}
+      <Section title="Open work" count={open.length}>
+        {open.length === 0 && <p className="text-sm text-muted p-5">All clear — no open tasks.</p>}
         {open.map((t) => <TaskRow key={t.id} task={t} onChange={load} />)}
       </Section>
 
       {connected.length > 0 && (
-        <Section title={`Connected work (${connected.length})`}>
+        <Section title="Connected work" count={connected.length}>
           {connected.map((t) => <TaskRow key={t.id} task={t} onChange={load} readOnly />)}
         </Section>
       )}
 
-      <Section title={`Recently completed (${done.length})`}>
-        {done.slice(0, 5).map((t) => <TaskRow key={t.id} task={t} onChange={load} readOnly />)}
-      </Section>
+      {done.length > 0 && (
+        <Section title="Completed" count={done.length}>
+          {done.slice(0, 5).map((t) => <TaskRow key={t.id} task={t} onChange={load} readOnly />)}
+        </Section>
+      )}
     </div>
   );
 }
 
 function AssignTaskForm({
-  employees,
-  clients,
-  onClose,
-  onCreated,
+  employees, clients, onClose, onCreated,
 }: {
   employees: Employee[];
   clients: Client[];
@@ -124,70 +123,61 @@ function AssignTaskForm({
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!title.trim() || !clientId) {
-      setError("Title and client are required.");
-      return;
-    }
+    if (!title.trim() || !clientId) { setError("Title and client are required."); return; }
     setSaving(true);
     setError("");
     const res = await fetch("/api/tasks", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        title: title.trim(),
-        clientId,
-        assignedToId: assignedToId || null,
-        workRole,
-        priority,
-        dueDate: dueDate || null,
-        notes: notes.trim() || null,
+        title: title.trim(), clientId, assignedToId: assignedToId || null,
+        workRole, priority, dueDate: dueDate || null, notes: notes.trim() || null,
       }),
     });
-    if (!res.ok) {
-      const d = await res.json();
-      setError(d.error ?? "Failed to create task.");
-      setSaving(false);
-      return;
-    }
+    if (!res.ok) { const d = await res.json(); setError(d.error ?? "Failed to create task."); setSaving(false); return; }
     setSaving(false);
     onCreated();
   }
 
   return (
-    <div className="card p-5">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-medium">Assign a new task</h2>
-        <button onClick={onClose} className="text-xs text-ink/40 hover:text-ink">&times; Close</button>
+    <div className="card p-6">
+      <div className="flex items-center justify-between mb-5">
+        <h2 className="font-semibold">Assign a new task</h2>
+        <button onClick={onClose} className="btn btn-ghost text-xs px-2 py-1">Close</button>
       </div>
-      {error && <p className="text-xs text-rust mb-3">{error}</p>}
+      {error && (
+        <div className="rounded-md bg-rust/10 border border-rust/20 px-3 py-2 mb-4">
+          <p className="text-sm text-rust">{error}</p>
+        </div>
+      )}
       <form onSubmit={submit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="sm:col-span-2">
-          <label className="block text-xs text-ink/60 mb-1">Task title</label>
+          <label className="block text-sm font-medium text-ink/70 mb-1">Task title</label>
           <input className="input w-full" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. File BIR Form 2307" />
         </div>
         <div>
-          <label className="block text-xs text-ink/60 mb-1">Client</label>
+          <label className="block text-sm font-medium text-ink/70 mb-1">Client</label>
           <select className="input w-full" value={clientId} onChange={(e) => setClientId(e.target.value)}>
             <option value="">Select client</option>
             {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </div>
         <div>
-          <label className="block text-xs text-ink/60 mb-1">Assign to</label>
+          <label className="block text-sm font-medium text-ink/70 mb-1">Assign to</label>
           <select className="input w-full" value={assignedToId} onChange={(e) => setAssignedToId(e.target.value)}>
             <option value="">Unassigned</option>
             {employees.map((emp) => <option key={emp.id} value={emp.id}>{emp.name} ({emp.role})</option>)}
           </select>
         </div>
         <div>
-          <label className="block text-xs text-ink/60 mb-1">Work role</label>
+          <label className="block text-sm font-medium text-ink/70 mb-1">Work role</label>
           <select className="input w-full" value={workRole} onChange={(e) => setWorkRole(e.target.value as any)}>
             <option value="ACCOUNTING">Accounting</option>
             <option value="LIAISON">Liaison</option>
           </select>
         </div>
         <div>
-          <label className="block text-xs text-ink/60 mb-1">Priority</label>
+          <label className="block text-sm font-medium text-ink/70 mb-1">Priority</label>
           <select className="input w-full" value={priority} onChange={(e) => setPriority(e.target.value)}>
             <option value="URGENT">Urgent</option>
             <option value="HIGH">High</option>
@@ -196,16 +186,16 @@ function AssignTaskForm({
           </select>
         </div>
         <div>
-          <label className="block text-xs text-ink/60 mb-1">Due date</label>
+          <label className="block text-sm font-medium text-ink/70 mb-1">Due date</label>
           <input type="date" className="input w-full" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
         </div>
         <div className="sm:col-span-2">
-          <label className="block text-xs text-ink/60 mb-1">Notes / instructions for the assignee</label>
-          <textarea className="input w-full" rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Explain what needs to be done and any context..." />
+          <label className="block text-sm font-medium text-ink/70 mb-1">Notes for the assignee</label>
+          <textarea className="input w-full" rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Instructions or context..." />
         </div>
         <div className="sm:col-span-2">
-          <button type="submit" disabled={saving} className="btn btn-primary text-xs">
-            {saving ? "Creating..." : "Create & assign task"}
+          <button type="submit" disabled={saving} className="btn btn-primary text-sm">
+            {saving ? "Creating..." : "Create & assign"}
           </button>
         </div>
       </form>
@@ -213,11 +203,14 @@ function AssignTaskForm({
   );
 }
 
-function Section({ title, accent, children }: { title: string; accent?: string; children: React.ReactNode }) {
+function Section({ title, count, accent, children }: { title: string; count: number; accent?: string; children: React.ReactNode }) {
   return (
     <div>
-      <h2 className={`text-sm font-medium mb-2 ${accent ?? ""}`}>{title}</h2>
-      <div className="card divide-y divide-rule">{children}</div>
+      <div className="flex items-center gap-2 mb-2">
+        <h2 className={`section-title ${accent ?? ""}`}>{title}</h2>
+        <span className="text-xs text-muted bg-ink/5 rounded-full px-2 py-0.5">{count}</span>
+      </div>
+      <div className="card divide-y divide-rule/50">{children}</div>
     </div>
   );
 }

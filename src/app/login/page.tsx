@@ -39,43 +39,58 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <form onSubmit={submit} className="card w-full max-w-sm p-8">
-        <h1 className="font-mono text-lg mb-1">Client Work Monitor</h1>
-        <p className="text-sm text-ink/60 mb-6">Pick your name and enter your PIN.</p>
+    <div className="min-h-screen flex items-center justify-center bg-paper">
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-ledger-600 text-white text-lg font-bold mb-4">
+            CM
+          </div>
+          <h1 className="text-xl font-semibold text-ink">Client Monitor</h1>
+          <p className="text-sm text-muted mt-1">Sign in to manage your work</p>
+        </div>
 
-        <label className="block text-xs text-ink/60 mb-1">Your name</label>
-        <select
-          className="input w-full mb-4"
-          value={employeeId}
-          onChange={(e) => setEmployeeId(e.target.value)}
-          required
-        >
-          <option value="">Select…</option>
-          {employees.map((emp) => (
-            <option key={emp.id} value={emp.id}>
-              {emp.name}
-            </option>
-          ))}
-        </select>
+        <form onSubmit={submit} className="card p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-ink/70 mb-1.5">Your name</label>
+            <select
+              className="input w-full"
+              value={employeeId}
+              onChange={(e) => setEmployeeId(e.target.value)}
+              required
+            >
+              <option value="">Choose your name...</option>
+              {employees.map((emp) => (
+                <option key={emp.id} value={emp.id}>
+                  {emp.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <label className="block text-xs text-ink/60 mb-1">PIN</label>
-        <input
-          type="password"
-          inputMode="numeric"
-          className="input w-full mb-4"
-          value={pin}
-          onChange={(e) => setPin(e.target.value)}
-          placeholder="••••"
-          required
-        />
+          <div>
+            <label className="block text-sm font-medium text-ink/70 mb-1.5">PIN</label>
+            <input
+              type="password"
+              inputMode="numeric"
+              className="input w-full"
+              value={pin}
+              onChange={(e) => setPin(e.target.value)}
+              placeholder="Enter your PIN"
+              required
+            />
+          </div>
 
-        {error && <p className="text-sm text-rust mb-4">{error}</p>}
+          {error && (
+            <div className="rounded-md bg-rust/10 border border-rust/20 px-3 py-2">
+              <p className="text-sm text-rust">{error}</p>
+            </div>
+          )}
 
-        <button type="submit" disabled={loading} className="btn btn-primary w-full justify-center">
-          {loading ? "Signing in…" : "Sign in"}
-        </button>
-      </form>
+          <button type="submit" disabled={loading} className="btn btn-primary w-full py-2.5">
+            {loading ? "Signing in..." : "Sign in"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
