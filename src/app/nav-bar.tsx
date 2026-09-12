@@ -22,7 +22,7 @@ export default function NavBar({ name, role }: Props) {
   if (role === "LIAISON") links.push({ href: "/liaison", label: "Liaison Board" });
   if (["BOSS", "ADMIN"].includes(role)) links.push({ href: "/boss", label: "Team Overview" });
   links.push({ href: "/clients", label: "Clients" });
-  if (role === "BOSS") links.push({ href: "/employees", label: "Employees" });
+  if (["BOSS", "ADMIN"].includes(role)) links.push({ href: "/employees", label: "Employees" });
 
   return (
     <header className="bg-white/80 backdrop-blur-md border-b border-green-100 sticky top-0 z-50">

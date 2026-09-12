@@ -17,6 +17,19 @@ async function main() {
     create: { id: "seed-rhys", name: "Rhys Dominique B. Go", role: "BOSS", pinHash: bossPin },
   });
 
+  const adminPin = await bcrypt.hash("1234", 10);
+  const john = await db.employee.upsert({
+    where: { id: "seed-john" },
+    update: { name: "John Bartolome", pinHash: adminPin },
+    create: { id: "seed-john", name: "John Bartolome", role: "ADMIN", pinHash: adminPin },
+  });
+
+  const jelea = await db.employee.upsert({
+    where: { id: "seed-jelea" },
+    update: { name: "Jelea-Dey Corral", pinHash: adminPin },
+    create: { id: "seed-jelea", name: "Jelea-Dey Corral", role: "ADMIN", pinHash: adminPin },
+  });
+
   const mariaPin = await bcrypt.hash("1111", 10);
   const maria = await db.employee.upsert({
     where: { id: "seed-maria" },
@@ -140,8 +153,8 @@ async function main() {
     },
   });
 
-  console.log("Seeded:", { boss: boss.name, rhys: rhys.name, maria: maria.name, carlo: carlo.name });
-  console.log("Sign in with: Joebert / PIN 1234, Rhys / PIN 1234, Maria / PIN 1111, Carlo / PIN 2222");
+  console.log("Seeded:", { boss: boss.name, rhys: rhys.name, john: john.name, jelea: jelea.name, maria: maria.name, carlo: carlo.name });
+  console.log("Sign in with: Joebert / 1234, Rhys / 1234, John / 1234, Jelea-Dey / 1234, Maria / 1111, Carlo / 2222");
 }
 
 main()
