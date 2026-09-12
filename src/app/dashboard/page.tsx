@@ -152,11 +152,11 @@ function AssignTaskForm({
       )}
       <form onSubmit={submit} className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div className="sm:col-span-2">
-          <label className="block text-sm font-medium text-ink mb-2">Task title</label>
+          <label className="block text-sm font-medium text-ink mb-2">Task title <span className="text-rust">*</span></label>
           <input className="input w-full" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. File BIR Form 2307" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-ink mb-2">Client</label>
+          <label className="block text-sm font-medium text-ink mb-2">Client <span className="text-rust">*</span></label>
           <select className="input w-full" value={clientId} onChange={(e) => setClientId(e.target.value)}>
             <option value="">Select client</option>
             {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
