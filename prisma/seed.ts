@@ -39,8 +39,10 @@ async function main() {
       title: "Prepare BIR Registration Documents",
       clientId: client.id,
       assignedToId: maria.id,
+      createdById: boss.id,
       workRole: "ACCOUNTING",
       status: "COMPLETED",
+      priority: "HIGH",
       progressPct: 100,
     },
   });
@@ -53,11 +55,14 @@ async function main() {
       title: "Submit BIR Registration Documents",
       clientId: client.id,
       assignedToId: carlo.id,
+      createdById: maria.id,
       workRole: "LIAISON",
       status: "IN_PROGRESS",
+      priority: "URGENT",
       progressPct: 40,
       dependsOnId: prep.id,
       dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+      notes: "Maria already prepared all documents. Please submit to BIR RDO 4. Bring the original and 2 copies.",
     },
   });
 
@@ -69,10 +74,13 @@ async function main() {
       title: "Follow Up BIR Registration",
       clientId: client.id,
       assignedToId: carlo.id,
+      createdById: maria.id,
       workRole: "LIAISON",
       status: "PENDING",
+      priority: "NORMAL",
       dependsOnId: submit.id,
       dueDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
+      notes: "Check registration status after 5 business days.",
     },
   });
 
@@ -84,9 +92,45 @@ async function main() {
       title: "Review Completed BIR Registration",
       clientId: client.id,
       assignedToId: maria.id,
+      createdById: boss.id,
       workRole: "ACCOUNTING",
       status: "WAITING_FOR_CLIENT",
+      priority: "NORMAL",
       dependsOnId: submit.id,
+    },
+  });
+
+  // Seed some comments to demonstrate the discussion feature
+  await db.taskComment.upsert({
+    where: { id: "seed-comment-1" },
+    update: {},
+    create: {
+      id: "seed-comment-1",
+      taskId: submit.id,
+      employeeId: maria.id,
+      message: "Documents are ready in the brown envelope on my desk. Include the SEC certificate too.",
+    },
+  });
+
+  await db.taskComment.upsert({
+    where: { id: "seed-comment-2" },
+    update: {},
+    create: {
+      id: "seed-comment-2",
+      taskId: submit.id,
+      employeeId: carlo.id,
+      message: "Got it. Will head to BIR tomorrow morning. What time do they open?",
+    },
+  });
+
+  await db.taskComment.upsert({
+    where: { id: "seed-comment-3" },
+    update: {},
+    create: {
+      id: "seed-comment-3",
+      taskId: submit.id,
+      employeeId: maria.id,
+      message: "They open at 8 AM. Better arrive early, it gets crowded after 10.",
     },
   });
 

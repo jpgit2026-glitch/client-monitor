@@ -6,7 +6,13 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
     where: { id: params.id },
     include: {
       tasks: {
-        include: { client: true, dependsOn: true },
+        include: {
+          client: true,
+          dependsOn: true,
+          assignedTo: { select: { id: true, name: true, role: true } },
+          createdBy: { select: { id: true, name: true, role: true } },
+          _count: { select: { comments: true } },
+        },
         orderBy: { dueDate: "asc" },
       },
     },

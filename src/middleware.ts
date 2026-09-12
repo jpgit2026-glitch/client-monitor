@@ -34,7 +34,6 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  // Route-level role gating
   if (pathname.startsWith("/employees") && role !== "BOSS") {
     if (isApi) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     return NextResponse.redirect(new URL("/dashboard", req.url));
@@ -43,7 +42,8 @@ export async function middleware(req: NextRequest) {
     if (isApi) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
-  if (pathname.startsWith("/api/employees") && role !== "BOSS") {
+  // Allow GET /api/employees for all (task assignment dropdown) but block POST/PATCH for non-BOSS
+  if (pathname.startsWith("/api/employees") && role !== "BOSS" && req.method !== "GET") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

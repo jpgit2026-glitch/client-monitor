@@ -28,6 +28,13 @@ enum TaskStatus {
   CANCELLED
 }
 
+enum Priority {
+  URGENT
+  HIGH
+  NORMAL
+  LOW
+}
+
 model Employee {
   id           String   @id @default(cuid())
   name         String
@@ -37,7 +44,9 @@ model Employee {
   createdAt    DateTime @default(now())
 
   tasks        Task[]        @relation("AssignedTo")
+  createdTasks Task[]        @relation("CreatedBy")
   activityLogs ActivityLog[]
+  comments     TaskComment[]
 }
 
 model Client {
@@ -57,8 +66,11 @@ model Task {
   client         Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
   assignedToId   String?
   assignedTo     Employee?  @relation("AssignedTo", fields: [assignedToId], references: [id])
+  createdById    String?
+  createdBy      Employee?  @relation("CreatedBy", fields: [createdById], references: [id])
   workRole       WorkRole
   status         TaskStatus @default(PENDING)
+  priority       Priority   @default(NORMAL)
   progressPct    Int        @default(0)
   dueDate        DateTime?
   notes          String?
@@ -71,10 +83,25 @@ model Task {
   updatedAt      DateTime   @updatedAt
 
   activityLogs ActivityLog[]
+  comments     TaskComment[]
 
   @@index([clientId])
   @@index([assignedToId])
   @@index([status])
+  @@index([priority])
+  @@index([dueDate])
+}
+
+model TaskComment {
+  id         String   @id @default(cuid())
+  taskId     String
+  task       Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  message    String
+  createdAt  DateTime @default(now())
+
+  @@index([taskId])
 }
 
 model ActivityLog {
