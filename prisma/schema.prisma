@@ -12,6 +12,8 @@ enum Role {
   ADMIN
   ACCOUNTING
   LIAISON
+  IT
+  DIRECTOR
 }
 
 enum WorkRole {

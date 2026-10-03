@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
   if (!name || !username || !role || !pin) {
     return NextResponse.json({ error: "Name, username, role, and a PIN are required." }, { status: 400 });
   }
-  if (!["BOSS", "ADMIN", "ACCOUNTING", "LIAISON"].includes(role)) {
+  if (!["BOSS", "ADMIN", "ACCOUNTING", "LIAISON", "IT", "DIRECTOR"].includes(role)) {
     return NextResponse.json({ error: "Invalid role." }, { status: 400 });
   }
   if (String(pin).length < 4) {
