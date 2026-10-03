@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import MentionInput, { renderMessageWithMentions } from "./mention-input";
 
 type Employee = { id: string; name: string; role: string };
 type Comment = { id: string; message: string; createdAt: string; employee: Employee };
@@ -238,18 +239,19 @@ export default function TaskModal({
                           <span className="text-sm font-semibold text-ink">{c.employee.name}</span>
                           <span className="text-2xs text-muted">{new Date(c.createdAt).toLocaleString()}</span>
                         </div>
-                        <p className="text-sm text-slate-600 mt-0.5 leading-relaxed">{c.message}</p>
+                        <p className="text-sm text-slate-600 mt-0.5 leading-relaxed">{renderMessageWithMentions(c.message, employees)}</p>
                       </div>
                     </div>
                   ))}
                 </div>
                 <div className="flex gap-2">
-                  <input
-                    className="input flex-1 text-sm"
-                    placeholder="Write a note..."
+                  <MentionInput
                     value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && postComment()}
+                    onChange={setNewComment}
+                    onSubmit={postComment}
+                    disabled={postingComment}
+                    employees={employees}
+                    className="input w-full text-sm"
                   />
                   <button onClick={postComment} disabled={postingComment || !newComment.trim()} className="btn btn-primary text-xs px-4">
                     {postingComment ? "..." : "Post"}

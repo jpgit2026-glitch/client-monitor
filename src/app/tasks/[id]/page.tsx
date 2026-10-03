@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import MentionInput, { renderMessageWithMentions } from "../../mention-input";
 
 type Employee = { id: string; name: string; role: string };
 type Comment = { id: string; message: string; createdAt: string; employee: Employee };
@@ -202,18 +203,19 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
                   <span className="text-sm font-semibold text-ink">{c.employee.name}</span>
                   <span className="text-2xs text-muted">{new Date(c.createdAt).toLocaleString()}</span>
                 </div>
-                <p className="text-sm text-ink/75 mt-1 leading-relaxed">{c.message}</p>
+                <p className="text-sm text-ink/75 mt-1 leading-relaxed">{renderMessageWithMentions(c.message, employees)}</p>
               </div>
             </div>
           ))}
         </div>
         <div className="flex gap-2">
-          <input
-            className="input flex-1"
-            placeholder="Write a note..."
+          <MentionInput
             value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && postComment()}
+            onChange={setNewComment}
+            onSubmit={postComment}
+            disabled={postingComment}
+            employees={employees}
+            className="input w-full"
           />
           <button onClick={postComment} disabled={postingComment || !newComment.trim()} className="btn btn-primary text-sm px-5">
             {postingComment ? "..." : "Post"}
