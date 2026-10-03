@@ -8,12 +8,12 @@ datasource db {
 }
 
 enum Role {
-  BOSS
+  DIRECTOR
   ADMIN
   ACCOUNTING
   LIAISON
   IT
-  DIRECTOR
+  HR
 }
 
 enum WorkRole {
@@ -26,6 +26,8 @@ enum TaskStatus {
   IN_PROGRESS
   WAITING_FOR_CLIENT
   FOR_REVIEW
+  FOR_BILLING
+  FOR_FILING
   COMPLETED
   CANCELLED
 }
@@ -46,10 +48,15 @@ model Employee {
   active       Boolean  @default(true)
   createdAt    DateTime @default(now())
 
-  tasks        Task[]        @relation("AssignedTo")
-  createdTasks Task[]        @relation("CreatedBy")
-  activityLogs ActivityLog[]
-  comments     TaskComment[]
+  tasks            Task[]        @relation("AssignedTo")
+  assignedTasks    Task[]        @relation("TaskAssignees")
+  handlingTasks    Task[]        @relation("CurrentHandler")
+  createdTasks     Task[]        @relation("CreatedBy")
+  activityLogs   ActivityLog[]
+  comments       TaskComment[]
+  mentionedIn    TaskComment[] @relation("CommentMentions")
+  commentReads   TaskCommentRead[]
+  handledClients Client[]      @relation("ClientHandlers")
 }
 
 model Client {
@@ -57,9 +64,11 @@ model Client {
   name      String
   status    String   @default("ACTIVE")
   notes     String?
+  archived  Boolean  @default(false)
   createdAt DateTime @default(now())
 
-  tasks Task[]
+  tasks    Task[]
+  handlers Employee[] @relation("ClientHandlers")
 }
 
 model Task {
@@ -67,26 +76,31 @@ model Task {
   title          String
   clientId       String
   client         Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  assignedToId   String?
-  assignedTo     Employee?  @relation("AssignedTo", fields: [assignedToId], references: [id])
-  createdById    String?
-  createdBy      Employee?  @relation("CreatedBy", fields: [createdById], references: [id])
+  assignedToId      String?
+  assignedTo        Employee?  @relation("AssignedTo", fields: [assignedToId], references: [id])
+  currentHandlerId  String?
+  currentHandler    Employee?  @relation("CurrentHandler", fields: [currentHandlerId], references: [id])
+  createdById       String?
+  createdBy         Employee?  @relation("CreatedBy", fields: [createdById], references: [id])
   workRole       WorkRole
   status         TaskStatus @default(PENDING)
   priority       Priority   @default(NORMAL)
   progressPct    Int        @default(0)
   dueDate        DateTime?
   notes          String?
+  filePath       String?
   followUpDate   DateTime?
   result         String?
   dependsOnId    String?
   dependsOn      Task?      @relation("Dependency", fields: [dependsOnId], references: [id])
   dependents     Task[]     @relation("Dependency")
+  assignees      Employee[] @relation("TaskAssignees")
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
 
   activityLogs ActivityLog[]
   comments     TaskComment[]
+  commentReads TaskCommentRead[]
 
   @@index([clientId])
   @@index([assignedToId])
@@ -96,13 +110,14 @@ model Task {
 }
 
 model TaskComment {
-  id         String   @id @default(cuid())
+  id         String     @id @default(cuid())
   taskId     String
-  task       Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  task       Task       @relation(fields: [taskId], references: [id], onDelete: Cascade)
   employeeId String
-  employee   Employee @relation(fields: [employeeId], references: [id])
+  employee   Employee   @relation(fields: [employeeId], references: [id])
   message    String
-  createdAt  DateTime @default(now())
+  mentions   Employee[] @relation("CommentMentions")
+  createdAt  DateTime   @default(now())
 
   @@index([taskId])
 }
@@ -117,4 +132,16 @@ model ActivityLog {
   createdAt  DateTime @default(now())
 
   @@index([taskId])
+}
+
+model TaskCommentRead {
+  id         String   @id @default(cuid())
+  taskId     String
+  task       Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  lastReadAt DateTime @default(now())
+
+  @@unique([taskId, employeeId])
+  @@index([employeeId])
 }

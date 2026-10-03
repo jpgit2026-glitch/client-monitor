@@ -16,6 +16,7 @@ type TaskDetail = {
   workRole: string;
   dueDate: string | null;
   notes: string | null;
+  filePath: string | null;
   followUpDate: string | null;
   result: string | null;
   isOverdue: boolean;
@@ -29,15 +30,15 @@ type TaskDetail = {
   activityLogs: ActivityEntry[];
 };
 
-const STATUS_OPTIONS = ["PENDING", "IN_PROGRESS", "WAITING_FOR_CLIENT", "FOR_REVIEW", "COMPLETED", "CANCELLED"];
+const STATUS_OPTIONS = ["PENDING", "IN_PROGRESS", "WAITING_FOR_CLIENT", "FOR_REVIEW", "FOR_BILLING", "FOR_FILING", "COMPLETED", "CANCELLED"];
 const PRIORITY_OPTIONS = ["URGENT", "HIGH", "NORMAL", "LOW"];
 const STATUS_LABEL: Record<string, string> = {
   PENDING: "Pending", IN_PROGRESS: "In progress", WAITING_FOR_CLIENT: "Waiting for client",
-  FOR_REVIEW: "For review", COMPLETED: "Completed", CANCELLED: "Cancelled",
+  FOR_REVIEW: "For review", FOR_BILLING: "For billing", FOR_FILING: "For filing", COMPLETED: "Completed", CANCELLED: "Cancelled",
 };
 const STATUS_STYLE: Record<string, string> = {
   PENDING: "bg-slate-100 text-slate-500", IN_PROGRESS: "bg-brand-50 text-brand-700",
-  WAITING_FOR_CLIENT: "bg-amber-50 text-amber-700", FOR_REVIEW: "bg-blue-50 text-blue-600",
+  WAITING_FOR_CLIENT: "bg-amber-50 text-amber-700", FOR_REVIEW: "bg-blue-50 text-blue-600", FOR_BILLING: "bg-indigo-50 text-indigo-600", FOR_FILING: "bg-violet-50 text-violet-600",
   COMPLETED: "bg-emerald-50 text-emerald-700", CANCELLED: "bg-slate-100 text-slate-400",
 };
 
@@ -52,6 +53,7 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
   const [priority, setPriority] = useState("");
   const [progress, setProgress] = useState(0);
   const [notes, setNotes] = useState("");
+  const [filePath, setFilePath] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [assignedToId, setAssignedToId] = useState("");
   const [newComment, setNewComment] = useState("");
@@ -71,6 +73,7 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
       setPriority(t.priority);
       setProgress(t.progressPct);
       setNotes(t.notes ?? "");
+      setFilePath(t.filePath ?? "");
       setDueDate(t.dueDate ? t.dueDate.slice(0, 10) : "");
       setAssignedToId(t.assignedTo?.id ?? "");
     }
@@ -85,7 +88,11 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
     await fetch(`/api/tasks/${params.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status, priority, progressPct: progress, notes, dueDate: dueDate || null, assignedToId: assignedToId || null }),
+      body: JSON.stringify({
+        status, priority, progressPct: progress, notes,
+        filePath: filePath.trim() || null,
+        dueDate: dueDate || null, assignedToId: assignedToId || null,
+      }),
     });
     await load();
     setSaving(false);
@@ -110,33 +117,39 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
   const blocked = task.dependsOn && task.dependsOn.status !== "COMPLETED";
 
   return (
-    <div className="space-y-7 max-w-3xl">
+    <div className="space-y-5 sm:space-y-7 max-w-3xl">
       <button onClick={() => router.back()} className="text-sm text-muted hover:text-brand-700 transition-colors">
         &larr; Back
       </button>
 
       {/* Header */}
       <div>
-        <div className="flex items-start justify-between gap-4">
-          <h1 className="text-2xl font-bold text-ink">{task.title}</h1>
-          <div className="flex gap-2 shrink-0 mt-1">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+          <h1 className="text-xl sm:text-2xl font-bold text-ink">{task.title}</h1>
+          <div className="flex gap-2 shrink-0">
             {task.isOverdue && <span className="tag bg-red-50 text-red-600">Overdue</span>}
             <span className={`tag ${STATUS_STYLE[task.status]}`}>{STATUS_LABEL[task.status]}</span>
           </div>
         </div>
-        <div className="flex items-center gap-2 mt-2 text-sm text-muted">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-2 text-sm text-muted">
           <span>{task.client.name}</span>
           <span className="text-rule">&middot;</span>
           <span>{task.workRole.charAt(0) + task.workRole.slice(1).toLowerCase()}</span>
           {task.assignedTo && <><span className="text-rule">&middot;</span><span>{task.assignedTo.name}</span></>}
-          {task.createdBy && <><span className="text-rule">&middot;</span><span>Assigned by {task.createdBy.name}</span></>}
+          {task.createdBy && <><span className="text-rule hidden sm:inline">&middot;</span><span className="hidden sm:inline">Assigned by {task.createdBy.name}</span></>}
         </div>
         {blocked && (
           <div className="mt-4 rounded-lg bg-amber-50 border border-amber-200 px-4 py-3">
             <p className="text-sm text-amber-700 font-medium">Blocked — waiting on: {task.dependsOn!.title} ({STATUS_LABEL[task.dependsOn!.status]})</p>
           </div>
         )}
-        <div className="mt-5 flex items-center gap-3">
+        {task.filePath && (
+          <div className="mt-3 bg-slate-50 rounded-lg px-4 py-3 border border-slate-100">
+            <div className="text-2xs text-muted font-medium uppercase tracking-wider mb-1">File location</div>
+            <p className="text-sm text-ink font-mono break-all">{task.filePath}</p>
+          </div>
+        )}
+        <div className="mt-4 sm:mt-5 flex items-center gap-3">
           <div className="progress-bar flex-1 h-2.5">
             <div className="progress-bar-fill h-2.5" style={{ width: `${task.progressPct}%` }} />
           </div>
@@ -145,9 +158,9 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
       </div>
 
       {/* Edit form */}
-      <div className="card-elevated p-7">
-        <h2 className="text-lg font-bold text-ink mb-5">Update task</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      <div className="card-elevated p-5 sm:p-7">
+        <h2 className="text-base sm:text-lg font-bold text-ink mb-4 sm:mb-5">Update task</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
           <div>
             <label className="block text-sm font-medium text-ink mb-2">Status</label>
             <select className="input w-full" value={status} onChange={(e) => setStatus(e.target.value)}>
@@ -175,12 +188,16 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
               {employees.map((emp) => <option key={emp.id} value={emp.id}>{emp.name} ({emp.role})</option>)}
             </select>
           </div>
+          <div>
+            <label className="block text-sm font-medium text-ink mb-2">File location</label>
+            <input className="input w-full" value={filePath} onChange={(e) => setFilePath(e.target.value)} placeholder="e.g. D:\Clients\ABC\file.xlsx" />
+          </div>
           <div className="sm:col-span-2">
             <label className="block text-sm font-medium text-ink mb-2">Notes</label>
             <textarea className="input w-full" rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
           </div>
           <div className="sm:col-span-2">
-            <button onClick={save} disabled={saving} className="btn btn-primary text-sm px-6">
+            <button onClick={save} disabled={saving} className="btn btn-primary text-sm px-6 w-full sm:w-auto">
               {saving ? "Saving..." : "Save changes"}
             </button>
           </div>
@@ -188,17 +205,17 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
       </div>
 
       {/* Discussion */}
-      <div className="card-elevated p-7">
-        <h2 className="text-lg font-bold text-ink mb-5">Discussion <span className="text-muted font-normal text-sm">({task.comments.length})</span></h2>
+      <div className="card-elevated p-5 sm:p-7">
+        <h2 className="text-base sm:text-lg font-bold text-ink mb-4 sm:mb-5">Discussion <span className="text-muted font-normal text-sm">({task.comments.length})</span></h2>
         {task.comments.length === 0 && <p className="text-sm text-muted mb-5">No comments yet. Add a note for your team.</p>}
-        <div className="space-y-5 mb-6">
+        <div className="space-y-4 sm:space-y-5 mb-5 sm:mb-6">
           {task.comments.map((c) => (
             <div key={c.id} className="flex gap-3">
               <div className="w-8 h-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
                 {c.employee.name.charAt(0)}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-baseline gap-2">
+                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
                   <span className="text-sm font-semibold text-ink">{c.employee.name}</span>
                   <span className="text-2xs text-muted">{new Date(c.createdAt).toLocaleString()}</span>
                 </div>
@@ -215,7 +232,7 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
             onChange={(e) => setNewComment(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && postComment()}
           />
-          <button onClick={postComment} disabled={postingComment || !newComment.trim()} className="btn btn-primary text-sm px-5">
+          <button onClick={postComment} disabled={postingComment || !newComment.trim()} className="btn btn-primary text-sm px-4 sm:px-5">
             {postingComment ? "..." : "Post"}
           </button>
         </div>
@@ -223,12 +240,12 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
 
       {/* Activity */}
       {task.activityLogs.length > 0 && (
-        <div className="card p-7">
-          <h2 className="text-lg font-bold text-ink mb-5">Activity</h2>
+        <div className="card p-5 sm:p-7">
+          <h2 className="text-base sm:text-lg font-bold text-ink mb-4 sm:mb-5">Activity</h2>
           <div className="space-y-3">
             {task.activityLogs.map((a) => (
-              <div key={a.id} className="flex items-baseline gap-3 text-sm">
-                <span className="text-2xs text-muted shrink-0 w-36 font-mono">{new Date(a.createdAt).toLocaleString()}</span>
+              <div key={a.id} className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-3 text-sm">
+                <span className="text-2xs text-muted shrink-0 sm:w-36 font-mono">{new Date(a.createdAt).toLocaleString()}</span>
                 <span className="text-ink/65"><span className="font-medium text-ink">{a.employee.name}</span> {a.action}</span>
               </div>
             ))}
@@ -237,7 +254,7 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
       )}
 
       {/* Metadata */}
-      <div className="text-xs text-muted flex items-center gap-3 pb-10">
+      <div className="text-xs text-muted flex flex-wrap items-center gap-x-3 gap-y-1 pb-10">
         <span>Created {new Date(task.createdAt).toLocaleDateString()}</span>
         <span className="text-rule">&middot;</span>
         <span>Updated {new Date(task.updatedAt).toLocaleDateString()}</span>

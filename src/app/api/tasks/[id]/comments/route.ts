@@ -8,7 +8,10 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
   const comments = await db.taskComment.findMany({
     where: { taskId: params.id },
-    include: { employee: { select: { id: true, name: true, role: true } } },
+    include: {
+      employee: { select: { id: true, name: true, role: true } },
+      mentions: { select: { id: true, name: true } },
+    },
     orderBy: { createdAt: "asc" },
   });
 
@@ -22,7 +25,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const task = await db.task.findUnique({ where: { id: params.id } });
   if (!task) return NextResponse.json({ error: "Task not found" }, { status: 404 });
 
-  const { message } = await req.json();
+  const { message, mentionIds } = await req.json();
   if (!message?.trim()) {
     return NextResponse.json({ error: "Message is required" }, { status: 400 });
   }
@@ -32,15 +35,23 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       taskId: params.id,
       employeeId: session.sub,
       message: message.trim(),
+      mentions: mentionIds?.length
+        ? { connect: mentionIds.map((id: string) => ({ id })) }
+        : undefined,
     },
-    include: { employee: { select: { id: true, name: true, role: true } } },
+    include: {
+      employee: { select: { id: true, name: true, role: true } },
+      mentions: { select: { id: true, name: true } },
+    },
   });
 
   await db.activityLog.create({
     data: {
       taskId: params.id,
       employeeId: session.sub,
-      action: "Added a comment",
+      action: mentionIds?.length
+        ? `Commented and mentioned ${mentionIds.length} employee(s)`
+        : "Added a comment",
     },
   });
 

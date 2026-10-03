@@ -8,13 +8,13 @@ async function main() {
   const boss = await db.employee.upsert({
     where: { id: "seed-boss" },
     update: { name: "Joebert Patrick B. Go", username: "joebert", pinHash: bossPin },
-    create: { id: "seed-boss", username: "joebert", name: "Joebert Patrick B. Go", role: "BOSS", pinHash: bossPin },
+    create: { id: "seed-boss", username: "joebert", name: "Joebert Patrick B. Go", role: "DIRECTOR", pinHash: bossPin },
   });
 
   const rhys = await db.employee.upsert({
     where: { id: "seed-rhys" },
     update: { name: "Rhys Dominique B. Go", username: "rhys", pinHash: bossPin },
-    create: { id: "seed-rhys", username: "rhys", name: "Rhys Dominique B. Go", role: "BOSS", pinHash: bossPin },
+    create: { id: "seed-rhys", username: "rhys", name: "Rhys Dominique B. Go", role: "DIRECTOR", pinHash: bossPin },
   });
 
   const adminPin = await bcrypt.hash("1234", 10);

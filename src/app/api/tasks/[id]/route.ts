@@ -4,11 +4,16 @@ import { getSession } from "@/lib/session";
 
 const taskInclude = {
   client: true,
+  assignees: { select: { id: true, name: true, role: true } },
   assignedTo: { select: { id: true, name: true, role: true } },
+  currentHandler: { select: { id: true, name: true, role: true } },
   createdBy: { select: { id: true, name: true, role: true } },
   dependsOn: true,
   comments: {
-    include: { employee: { select: { id: true, name: true, role: true } } },
+    include: {
+      employee: { select: { id: true, name: true, role: true } },
+      mentions: { select: { id: true, name: true } },
+    },
     orderBy: { createdAt: "asc" as const },
   },
   activityLogs: {
@@ -42,11 +47,11 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Not signed in" }, { status: 401 });
 
-  const task = await db.task.findUnique({ where: { id: params.id } });
+  const task = await db.task.findUnique({ where: { id: params.id }, include: { assignees: { select: { id: true } } } });
   if (!task) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const isManager = ["BOSS", "ADMIN"].includes(session.role);
-  const isOwner = task.assignedToId === session.sub;
+  const isManager = ["DIRECTOR", "ADMIN"].includes(session.role);
+  const isOwner = task.assignedToId === session.sub || task.assignees.some((a: { id: string }) => a.id === session.sub);
   const isCreator = task.createdById === session.sub;
   if (!isManager && !isOwner && !isCreator) {
     return NextResponse.json({ error: "You can only update tasks you own or created." }, { status: 403 });
@@ -54,7 +59,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
   const body = await req.json();
   const allowed: Record<string, unknown> = {};
-  const allowedKeys = ["status", "progressPct", "notes", "followUpDate", "result", "dueDate", "assignedToId", "priority", "title"];
+  const allowedKeys = ["status", "progressPct", "notes", "filePath", "followUpDate", "result", "dueDate", "assignedToId", "currentHandlerId", "priority", "title"];
   for (const key of allowedKeys) {
     if (key in body) allowed[key] = body[key];
   }
@@ -65,14 +70,23 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     allowed.dueDate = new Date(allowed.dueDate as string);
   }
 
-  const updated = await db.task.update({ where: { id: params.id }, data: allowed });
+  const assigneesUpdate = body.assignedToIds
+    ? { assignees: { set: body.assignedToIds.map((id: string) => ({ id })) }, assignedToId: body.assignedToIds[0] || null }
+    : {};
+
+  const updated = await db.task.update({ where: { id: params.id }, data: { ...allowed, ...assigneesUpdate } });
 
   const changes = Object.keys(allowed);
+  let actionMsg = `Updated ${changes.join(", ")}`;
+  if ("currentHandlerId" in allowed && allowed.currentHandlerId) {
+    const handler = await db.employee.findUnique({ where: { id: allowed.currentHandlerId as string }, select: { name: true } });
+    if (handler) actionMsg = `Passed task to ${handler.name}`;
+  }
   await db.activityLog.create({
     data: {
       taskId: task.id,
       employeeId: session.sub,
-      action: `Updated ${changes.join(", ")}`,
+      action: actionMsg,
     },
   });
 
@@ -81,7 +95,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getSession();
-  if (!session || !["BOSS", "ADMIN"].includes(session.role)) {
+  if (!session || !["DIRECTOR", "ADMIN"].includes(session.role)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
   await db.task.delete({ where: { id: params.id } });

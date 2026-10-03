@@ -12,7 +12,8 @@ async function readRole(token: string | undefined) {
   if (!token) return null;
   try {
     const { payload } = await jwtVerify(token, getSecret());
-    return payload.role as string;
+    const role = payload.role as string;
+    return role === "BOSS" ? "DIRECTOR" : role;
   } catch {
     return null;
   }
@@ -34,16 +35,16 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  if (pathname.startsWith("/employees") && role !== "BOSS") {
+  if (pathname.startsWith("/employees") && role !== "DIRECTOR") {
     if (isApi) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
-  if (pathname.startsWith("/boss") && !["BOSS", "ADMIN"].includes(role)) {
+  if (pathname.startsWith("/boss") && !["DIRECTOR", "ADMIN"].includes(role)) {
     if (isApi) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
-  // Allow GET /api/employees for all (task assignment dropdown) but block POST/PATCH for non-BOSS
-  if (pathname.startsWith("/api/employees") && role !== "BOSS" && req.method !== "GET") {
+  // Allow GET /api/employees for all (task assignment dropdown) but block POST/PATCH for non-DIRECTOR
+  if (pathname.startsWith("/api/employees") && role !== "DIRECTOR" && req.method !== "GET") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

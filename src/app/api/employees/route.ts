@@ -10,18 +10,18 @@ export async function GET(req: NextRequest) {
     where: {
       active: true,
       ...(roleFilter
-        ? { role: roleFilter as "ACCOUNTING" | "LIAISON" }
+        ? { role: roleFilter as any }
         : includeManagers
         ? {}
-        : { role: { in: ["ACCOUNTING", "LIAISON"] } }),
+        : { role: { in: ["ACCOUNTING", "LIAISON", "IT", "HR"] } }),
     },
-    include: { tasks: true },
+    include: { assignedTasks: true },
     orderBy: { name: "asc" },
   });
 
   const now = new Date();
   const data = employees.map((e) => {
-    const tasks = e.tasks;
+    const tasks = e.assignedTasks;
     const total = tasks.length;
     const completed = tasks.filter((t) => t.status === "COMPLETED").length;
     const overdue = tasks.filter(
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
   if (!name || !username || !role || !pin) {
     return NextResponse.json({ error: "Name, username, role, and a PIN are required." }, { status: 400 });
   }
-  if (!["BOSS", "ADMIN", "ACCOUNTING", "LIAISON", "IT", "DIRECTOR"].includes(role)) {
+  if (!["DIRECTOR", "ADMIN", "ACCOUNTING", "LIAISON", "IT", "HR"].includes(role)) {
     return NextResponse.json({ error: "Invalid role." }, { status: 400 });
   }
   if (String(pin).length < 4) {

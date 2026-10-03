@@ -29,33 +29,34 @@ export default function BossPage() {
   }, [filter]);
 
   return (
-    <div className="space-y-7">
-      <div className="flex items-end justify-between">
+    <div className="space-y-6 sm:space-y-7">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-ink">Team Overview</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-ink">Team Overview</h1>
           <p className="text-sm text-muted mt-1">Pick an employee to see their full workload.</p>
         </div>
         <div className="flex items-center gap-2">
           <a href="/api/excel/export" className="btn text-xs">
-            Export to Excel
+            Export
           </a>
           <ImportButton />
         </div>
       </div>
 
-      <div className="flex gap-1.5">
+      <div className="flex gap-1.5 overflow-x-auto">
         {(["ALL", "ACCOUNTING", "LIAISON"] as const).map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`btn text-xs ${filter === f ? "bg-brand-600 text-white border-brand-600 hover:bg-brand-700" : ""}`}
+            className={`btn text-xs whitespace-nowrap ${filter === f ? "bg-brand-600 text-white border-brand-600 hover:bg-brand-700" : ""}`}
           >
             {f === "ALL" ? "All" : f.charAt(0) + f.slice(1).toLowerCase()}
           </button>
         ))}
       </div>
 
-      <div className="card overflow-x-auto">
+      {/* Desktop table */}
+      <div className="hidden md:block card overflow-x-auto">
         <table>
           <thead>
             <tr>
@@ -117,6 +118,52 @@ export default function BossPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Mobile cards */}
+      <div className="md:hidden space-y-3">
+        {loading && <p className="text-sm text-muted text-center py-10">Loading...</p>}
+        {!loading && rows.length === 0 && <p className="text-sm text-muted text-center py-10">No employees yet.</p>}
+        {rows.map((r) => (
+          <Link key={r.id} href={`/boss/employee/${r.id}`} className="block card-elevated p-4 active:bg-slate-50 transition-colors">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-bold shrink-0">
+                  {r.name.charAt(0)}
+                </div>
+                <div>
+                  <div className="font-medium text-sm text-ink">{r.name}</div>
+                  <span className="tag bg-brand-50 text-brand-700 mt-0.5">{r.role.charAt(0) + r.role.slice(1).toLowerCase()}</span>
+                </div>
+              </div>
+              <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+            </div>
+            <div className="grid grid-cols-4 gap-2 text-center">
+              <div>
+                <div className="text-sm font-semibold text-ink">{r.total}</div>
+                <div className="text-2xs text-muted">Tasks</div>
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-ink">{r.completed}</div>
+                <div className="text-2xs text-muted">Done</div>
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-ink">{r.pending}</div>
+                <div className="text-2xs text-muted">Pending</div>
+              </div>
+              <div>
+                <div className={`text-sm font-semibold ${r.overdue > 0 ? "text-rust" : "text-ink"}`}>{r.overdue}</div>
+                <div className="text-2xs text-muted">Overdue</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2.5 mt-3">
+              <div className="progress-bar flex-1 h-2">
+                <div className="progress-bar-fill h-2" style={{ width: `${r.progress}%` }} />
+              </div>
+              <span className="text-xs text-muted font-semibold w-8 text-right">{r.progress}%</span>
+            </div>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }
@@ -145,7 +192,7 @@ function ImportButton() {
 
   return (
     <label className="btn text-xs cursor-pointer">
-      {busy ? "Importing..." : "Import Excel"}
+      {busy ? "Importing..." : "Import"}
       <input type="file" accept=".xlsx,.xls" className="hidden" onChange={onFile} />
       {msg && <span className="ml-2 text-muted text-2xs">{msg}</span>}
     </label>

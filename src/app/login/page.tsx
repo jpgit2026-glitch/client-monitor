@@ -34,9 +34,9 @@ export default function LoginPage() {
       <div className="w-full max-w-sm px-4">
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-brand-600 text-white text-xl font-bold mb-5 shadow-soft">
-            CM
+            JP
           </div>
-          <h1 className="text-2xl font-bold text-ink">Client Monitor</h1>
+          <h1 className="text-2xl font-bold text-ink">JPG Monitoring</h1>
           <p className="text-sm text-muted mt-1.5">Sign in to manage your work</p>
         </div>
 

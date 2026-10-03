@@ -17,7 +17,7 @@ function getSecret() {
 export type SessionPayload = {
   sub: string; // employee id
   name: string;
-  role: "BOSS" | "ADMIN" | "ACCOUNTING" | "LIAISON";
+  role: "DIRECTOR" | "ADMIN" | "ACCOUNTING" | "LIAISON" | "IT" | "HR";
 };
 
 export async function createSession(payload: SessionPayload) {
@@ -46,10 +46,11 @@ export async function getSession(): Promise<SessionPayload | null> {
   if (!token) return null;
   try {
     const { payload } = await jwtVerify(token, getSecret());
+    const role = payload.role === "BOSS" ? "DIRECTOR" : payload.role;
     return {
       sub: payload.sub as string,
       name: payload.name as string,
-      role: payload.role as SessionPayload["role"],
+      role: role as SessionPayload["role"],
     };
   } catch {
     return null;

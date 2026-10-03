@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 type Row = { id: string; username: string; name: string; role: string; total: number; progress: number };
 
-const ROLES = ["BOSS", "ADMIN", "ACCOUNTING", "LIAISON"];
+const ROLES = ["DIRECTOR", "ADMIN", "ACCOUNTING", "LIAISON", "IT", "HR"];
 
 export default function EmployeesPage() {
   const [rows, setRows] = useState<Row[]>([]);
@@ -59,15 +59,15 @@ export default function EmployeesPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-ink">Employees</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-ink">Employees</h1>
         <p className="text-sm text-muted mt-1">
           Manage your team. Add, edit, or remove employees.
         </p>
       </div>
 
-      <form onSubmit={addEmployee} className="card-elevated p-6 grid grid-cols-1 sm:grid-cols-5 gap-4 items-end">
+      <form onSubmit={addEmployee} className="card-elevated p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 items-end">
         <div>
           <label className="block text-sm font-medium text-ink mb-1.5">Full Name</label>
           <input className="input w-full" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Juan Dela Cruz" />
@@ -95,17 +95,18 @@ export default function EmployeesPage() {
             placeholder="1234"
           />
         </div>
-        <button disabled={saving} className="btn btn-primary text-sm">
+        <button disabled={saving} className="btn btn-primary text-sm w-full">
           {saving ? "Adding..." : "Add employee"}
         </button>
         {error && (
-          <div className="sm:col-span-5 rounded-lg bg-red-50 border border-red-200 px-4 py-3">
+          <div className="col-span-full rounded-lg bg-red-50 border border-red-200 px-4 py-3">
             <p className="text-sm text-red-600 font-medium">{error}</p>
           </div>
         )}
       </form>
 
-      <div className="card overflow-x-auto">
+      {/* Desktop table */}
+      <div className="hidden md:block card overflow-x-auto">
         <table>
           <thead>
             <tr>
@@ -166,6 +167,40 @@ export default function EmployeesPage() {
         </table>
       </div>
 
+      {/* Mobile cards */}
+      <div className="md:hidden space-y-3">
+        {rows.length === 0 && <p className="text-sm text-muted text-center py-10">No employees yet.</p>}
+        {rows.map((r) => (
+          <div key={r.id} className="card-elevated p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-bold shrink-0">
+                  {r.name.charAt(0)}
+                </div>
+                <div>
+                  <div className="font-medium text-sm text-ink">{r.name}</div>
+                  <div className="text-2xs text-muted font-mono">{r.username}</div>
+                </div>
+              </div>
+              <span className="tag bg-brand-50 text-brand-700">{r.role.charAt(0) + r.role.slice(1).toLowerCase()}</span>
+            </div>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs text-muted">{r.total} tasks</span>
+              <div className="flex items-center gap-2">
+                <div className="progress-bar w-20 h-2">
+                  <div className="progress-bar-fill h-2" style={{ width: `${r.progress}%` }} />
+                </div>
+                <span className="text-xs text-muted font-semibold w-8 text-right">{r.progress}%</span>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button className="btn text-xs px-3 py-1.5 flex-1" onClick={() => setEditing(r)}>Edit</button>
+              <button className="btn btn-danger text-xs px-3 py-1.5 flex-1" onClick={() => setDeleting(r)}>Delete</button>
+            </div>
+          </div>
+        ))}
+      </div>
+
       {editing && (
         <EditModal
           employee={editing}
@@ -224,14 +259,14 @@ function EditModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-elevated w-full max-w-md mx-4 border border-slate-200" onClick={(e) => e.stopPropagation()}>
-        <div className="px-6 py-5 border-b border-slate-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 backdrop-blur-sm p-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-elevated w-full max-w-md border border-slate-200" onClick={(e) => e.stopPropagation()}>
+        <div className="px-5 sm:px-6 py-4 sm:py-5 border-b border-slate-200">
           <h2 className="text-lg font-bold text-ink">Edit Employee</h2>
           <p className="text-sm text-muted mt-0.5">Update details for {employee.name}</p>
         </div>
 
-        <form onSubmit={save} className="p-6 space-y-4">
+        <form onSubmit={save} className="p-5 sm:p-6 space-y-4">
           <div>
             <label className="block text-sm font-medium text-ink mb-1.5">Full Name</label>
             <input className="input w-full" value={name} onChange={(e) => setName(e.target.value)} required />
@@ -297,9 +332,9 @@ function DeleteConfirm({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-elevated w-full max-w-sm mx-4 border border-slate-200" onClick={(e) => e.stopPropagation()}>
-        <div className="p-6 text-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 backdrop-blur-sm p-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-elevated w-full max-w-sm border border-slate-200" onClick={(e) => e.stopPropagation()}>
+        <div className="p-5 sm:p-6 text-center">
           <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
             <svg className="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -310,7 +345,7 @@ function DeleteConfirm({
             Are you sure you want to remove <strong>{employee.name}</strong>? They will no longer be able to sign in. This can be undone by re-adding them.
           </p>
         </div>
-        <div className="px-6 pb-6 flex gap-3">
+        <div className="px-5 sm:px-6 pb-5 sm:pb-6 flex gap-3">
           <button className="btn flex-1 text-sm" onClick={onClose}>
             Cancel
           </button>
