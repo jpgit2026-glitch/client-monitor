@@ -34,8 +34,8 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const session = await getSession();
-  if (!session || !["DIRECTOR", "ADMIN"].includes(session.role)) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (!session) {
+    return NextResponse.json({ error: "Not signed in" }, { status: 401 });
   }
 
   const { name, notes } = await req.json();
