@@ -280,7 +280,7 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
           {showMentionMenu && (() => {
             const seen = new Set<string>();
             const mentionable: Employee[] = [];
-            for (const emp of [...(task?.assignees ?? []), ...(task?.createdBy ? [task.createdBy] : []), ...employees]) {
+            for (const emp of [...(task?.assignees ?? []), ...(task?.createdBy ? [task.createdBy] : [])]) {
               if (!seen.has(emp.id)) { seen.add(emp.id); mentionable.push(emp); }
             }
             const filtered = mentionable.filter((emp) => emp.name.toLowerCase().includes(mentionQuery));
