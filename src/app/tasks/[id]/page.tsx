@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 type Employee = { id: string; name: string; role: string };
-type Comment = { id: string; message: string; createdAt: string; employee: Employee };
+type Comment = { id: string; message: string; createdAt: string; employee: Employee; mentions?: { id: string; name: string }[] };
 type ActivityEntry = { id: string; action: string; createdAt: string; employee: { name: string } };
 
 type TaskDetail = {
@@ -23,6 +23,7 @@ type TaskDetail = {
   createdAt: string;
   updatedAt: string;
   client: { name: string };
+  assignees: Employee[];
   assignedTo: Employee | null;
   createdBy: Employee | null;
   dependsOn: { title: string; status: string } | null;
@@ -57,6 +58,9 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
   const [dueDate, setDueDate] = useState("");
   const [assignedToId, setAssignedToId] = useState("");
   const [newComment, setNewComment] = useState("");
+  const [mentionIds, setMentionIds] = useState<Set<string>>(new Set());
+  const [showMentionMenu, setShowMentionMenu] = useState(false);
+  const [mentionQuery, setMentionQuery] = useState("");
   const [postingComment, setPostingComment] = useState(false);
 
   async function load() {
@@ -104,11 +108,47 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
     await fetch(`/api/tasks/${params.id}/comments`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: newComment.trim() }),
+      body: JSON.stringify({ message: newComment.trim(), mentionIds: Array.from(mentionIds) }),
     });
     setNewComment("");
+    setMentionIds(new Set());
+    setShowMentionMenu(false);
     await load();
     setPostingComment(false);
+  }
+
+  function handleCommentChange(value: string) {
+    setNewComment(value);
+    const lastAt = value.lastIndexOf("@");
+    if (lastAt >= 0) {
+      const after = value.slice(lastAt + 1);
+      if (!after.includes(" ") && after.length <= 30) {
+        setMentionQuery(after.toLowerCase());
+        setShowMentionMenu(true);
+        return;
+      }
+    }
+    setShowMentionMenu(false);
+  }
+
+  function insertMention(emp: Employee) {
+    const lastAt = newComment.lastIndexOf("@");
+    const before = newComment.slice(0, lastAt);
+    setNewComment(before + "@" + emp.name + " ");
+    setMentionIds((prev) => { const next = new Set(prev); next.add(emp.id); return next; });
+    setShowMentionMenu(false);
+  }
+
+  function renderMessage(message: string, commentMentions?: { id: string; name: string }[]) {
+    if (!commentMentions?.length) return message;
+    const names = commentMentions.map((m) => m.name);
+    const regex = new RegExp(`@(${names.map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})`, "g");
+    const parts = message.split(regex);
+    return parts.map((part, i) =>
+      names.includes(part)
+        ? <span key={i} className="text-brand-600 font-semibold">@{part}</span>
+        : part
+    );
   }
 
   if (loading) return <p className="text-sm text-muted py-16 text-center">Loading...</p>;
@@ -219,22 +259,53 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
                   <span className="text-sm font-semibold text-ink">{c.employee.name}</span>
                   <span className="text-2xs text-muted">{new Date(c.createdAt).toLocaleString()}</span>
                 </div>
-                <p className="text-sm text-ink/75 mt-1 leading-relaxed">{c.message}</p>
+                <p className="text-sm text-ink/75 mt-1 leading-relaxed">{renderMessage(c.message, c.mentions)}</p>
               </div>
             </div>
           ))}
         </div>
-        <div className="flex gap-2">
-          <input
-            className="input flex-1"
-            placeholder="Write a note..."
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && postComment()}
-          />
-          <button onClick={postComment} disabled={postingComment || !newComment.trim()} className="btn btn-primary text-sm px-4 sm:px-5">
-            {postingComment ? "..." : "Post"}
-          </button>
+        <div className="relative">
+          <div className="flex gap-2">
+            <input
+              className="input flex-1"
+              placeholder="Write a note... use @ to mention"
+              value={newComment}
+              onChange={(e) => handleCommentChange(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter" && !showMentionMenu) postComment(); }}
+            />
+            <button onClick={postComment} disabled={postingComment || !newComment.trim()} className="btn btn-primary text-sm px-4 sm:px-5">
+              {postingComment ? "..." : "Post"}
+            </button>
+          </div>
+          {showMentionMenu && (() => {
+            const seen = new Set<string>();
+            const mentionable: Employee[] = [];
+            for (const emp of [...(task?.assignees ?? []), ...(task?.createdBy ? [task.createdBy] : []), ...employees]) {
+              if (!seen.has(emp.id)) { seen.add(emp.id); mentionable.push(emp); }
+            }
+            const filtered = mentionable.filter((emp) => emp.name.toLowerCase().includes(mentionQuery));
+            return (
+              <div className="absolute bottom-full left-0 right-16 mb-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-40 overflow-y-auto z-50">
+                {filtered.map((emp) => (
+                  <button
+                    key={emp.id}
+                    type="button"
+                    onClick={() => insertMention(emp)}
+                    className="w-full text-left px-3 py-2 flex items-center gap-2 hover:bg-slate-50 transition-colors"
+                  >
+                    <span className="w-6 h-6 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-[10px] font-bold shrink-0">
+                      {emp.name.charAt(0)}
+                    </span>
+                    <span className="text-sm text-ink">{emp.name}</span>
+                    <span className="text-xs text-muted ml-auto">{emp.role}</span>
+                  </button>
+                ))}
+                {filtered.length === 0 && (
+                  <div className="px-3 py-2 text-sm text-muted">No matching employees</div>
+                )}
+              </div>
+            );
+          })()}
         </div>
       </div>
 

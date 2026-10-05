@@ -330,11 +330,16 @@ export default function TaskModal({
                       {postingComment ? "..." : "Post"}
                     </button>
                   </div>
-                  {showMentionMenu && (
-                    <div className="absolute bottom-full left-0 right-12 mb-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-40 overflow-y-auto z-50">
-                      {(task?.assignees ?? [])
-                        .filter((emp) => emp.name.toLowerCase().includes(mentionQuery))
-                        .map((emp) => (
+                  {showMentionMenu && (() => {
+                    const seen = new Set<string>();
+                    const mentionable: Employee[] = [];
+                    for (const emp of [...(task?.assignees ?? []), ...(task?.createdBy ? [task.createdBy] : []), ...employees]) {
+                      if (!seen.has(emp.id)) { seen.add(emp.id); mentionable.push(emp); }
+                    }
+                    const filtered = mentionable.filter((emp) => emp.name.toLowerCase().includes(mentionQuery));
+                    return (
+                      <div className="absolute bottom-full left-0 right-12 mb-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-40 overflow-y-auto z-50">
+                        {filtered.map((emp) => (
                           <button
                             key={emp.id}
                             type="button"
@@ -348,11 +353,12 @@ export default function TaskModal({
                             <span className="text-xs text-muted ml-auto">{emp.role}</span>
                           </button>
                         ))}
-                      {(task?.assignees ?? []).filter((emp) => emp.name.toLowerCase().includes(mentionQuery)).length === 0 && (
-                        <div className="px-3 py-2 text-sm text-muted">No matching employees</div>
-                      )}
-                    </div>
-                  )}
+                        {filtered.length === 0 && (
+                          <div className="px-3 py-2 text-sm text-muted">No matching employees</div>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             </div>
