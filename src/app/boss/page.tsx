@@ -15,13 +15,13 @@ type Row = {
 };
 
 export default function BossPage() {
-  const [filter, setFilter] = useState<"ALL" | "ACCOUNTING" | "LIAISON">("ALL");
+  const [filter, setFilter] = useState<"ALL" | "DIRECTOR" | "ADMIN" | "ACCOUNTING" | "LIAISON" | "IT" | "HR">("ALL");
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
-    const qs = filter === "ALL" ? "" : `?role=${filter}`;
+    const qs = filter === "ALL" ? "?all=1" : `?role=${filter}`;
     fetch(`/api/employees${qs}`)
       .then((r) => r.json())
       .then((d) => setRows(d.employees ?? []))
@@ -44,7 +44,7 @@ export default function BossPage() {
       </div>
 
       <div className="flex gap-1.5 overflow-x-auto">
-        {(["ALL", "ACCOUNTING", "LIAISON"] as const).map((f) => (
+        {(["ALL", "DIRECTOR", "ADMIN", "ACCOUNTING", "LIAISON", "IT", "HR"] as const).map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
