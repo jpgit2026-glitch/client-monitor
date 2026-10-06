@@ -39,10 +39,6 @@ export async function middleware(req: NextRequest) {
     if (isApi) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
-  if (pathname.startsWith("/boss") && !["DIRECTOR", "ADMIN"].includes(role)) {
-    if (isApi) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    return NextResponse.redirect(new URL("/dashboard", req.url));
-  }
   // Allow GET /api/employees for all (task assignment dropdown) but block POST/PATCH for non-DIRECTOR
   if (pathname.startsWith("/api/employees") && role !== "DIRECTOR" && req.method !== "GET") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });

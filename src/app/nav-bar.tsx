@@ -43,7 +43,7 @@ export default function NavBar({ name, role }: Props) {
     { href: "/dashboard", label: "My Work", badge: urgentCount },
   ];
   if (role === "LIAISON") links.push({ href: "/liaison", label: "Liaison Board" });
-  if (["DIRECTOR", "ADMIN"].includes(role)) links.push({ href: "/boss", label: "Team Overview" });
+  links.push({ href: "/boss", label: "Team Overview" });
   links.push({ href: "/clients", label: "Clients" });
   if (["DIRECTOR", "ADMIN"].includes(role)) links.push({ href: "/employees", label: "Employees" });
 
