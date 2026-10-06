@@ -12,7 +12,9 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
         include: {
           client: true,
           dependsOn: true,
+          assignees: { select: { id: true, name: true, role: true } },
           assignedTo: { select: { id: true, name: true, role: true } },
+          currentHandler: { select: { id: true, name: true, role: true } },
           createdBy: { select: { id: true, name: true, role: true } },
           _count: { select: { comments: true } },
           comments: { orderBy: { createdAt: "desc" as const }, take: 1, select: { createdAt: true } },
