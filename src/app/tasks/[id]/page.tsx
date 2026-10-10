@@ -56,7 +56,7 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
   const [notes, setNotes] = useState("");
   const [filePath, setFilePath] = useState("");
   const [dueDate, setDueDate] = useState("");
-  const [assignedToId, setAssignedToId] = useState("");
+  const [selectedAssignees, setSelectedAssignees] = useState<Set<string>>(new Set());
   const [newComment, setNewComment] = useState("");
   const [mentionIds, setMentionIds] = useState<Set<string>>(new Set());
   const [showMentionMenu, setShowMentionMenu] = useState(false);
@@ -79,7 +79,7 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
       setNotes(t.notes ?? "");
       setFilePath(t.filePath ?? "");
       setDueDate(t.dueDate ? t.dueDate.slice(0, 10) : "");
-      setAssignedToId(t.assignedTo?.id ?? "");
+      setSelectedAssignees(new Set(t.assignees?.map((a: Employee) => a.id) ?? (t.assignedTo ? [t.assignedTo.id] : [])));
     }
     setEmployees(emps ?? []);
     setLoading(false);
@@ -99,7 +99,7 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
       body: JSON.stringify({
         status, priority, progressPct: progress, notes,
         filePath: filePath.trim() || null,
-        dueDate: dueDate || null, assignedToId: assignedToId || null,
+        dueDate: dueDate || null, assignedToIds: Array.from(selectedAssignees),
       }),
     });
     await load();
@@ -179,7 +179,7 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
           <span>{task.client.name}</span>
           <span className="text-rule">&middot;</span>
           <span>{task.workRole.charAt(0) + task.workRole.slice(1).toLowerCase()}</span>
-          {task.assignedTo && <><span className="text-rule">&middot;</span><span>{task.assignedTo.name}</span></>}
+          {task.assignees?.length > 0 && <><span className="text-rule">&middot;</span><span>{task.assignees.map((a: Employee) => a.name).join(", ")}</span></>}
           {task.createdBy && <><span className="text-rule hidden sm:inline">&middot;</span><span className="hidden sm:inline">Assigned by {task.createdBy.name}</span></>}
         </div>
         {blocked && (
@@ -227,10 +227,24 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
           </div>
           <div>
             <label className="block text-sm font-medium text-ink mb-2">Assign to</label>
-            <select className="input w-full" value={assignedToId} onChange={(e) => setAssignedToId(e.target.value)}>
-              <option value="">Unassigned</option>
-              {employees.map((emp) => <option key={emp.id} value={emp.id}>{emp.name} ({emp.role})</option>)}
-            </select>
+            <div className="border border-slate-200 rounded-lg max-h-40 overflow-y-auto p-2 space-y-1">
+              {employees.map((emp) => (
+                <label key={emp.id} className="flex items-center gap-2 px-2 py-1 rounded hover:bg-slate-50 cursor-pointer text-sm">
+                  <input
+                    type="checkbox"
+                    checked={selectedAssignees.has(emp.id)}
+                    onChange={(e) => {
+                      const next = new Set(selectedAssignees);
+                      if (e.target.checked) next.add(emp.id); else next.delete(emp.id);
+                      setSelectedAssignees(next);
+                    }}
+                    className="rounded border-slate-300"
+                  />
+                  <span>{emp.name}</span>
+                  <span className="text-xs text-muted">({emp.role})</span>
+                </label>
+              ))}
+            </div>
           </div>
           <div>
             <label className="block text-sm font-medium text-ink mb-2">File location</label>
