@@ -50,12 +50,6 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const task = await db.task.findUnique({ where: { id: params.id }, include: { assignees: { select: { id: true } } } });
   if (!task) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const isManager = ["DIRECTOR", "ADMIN"].includes(session.role);
-  const isOwner = task.assignedToId === session.sub || task.assignees.some((a: { id: string }) => a.id === session.sub);
-  const isCreator = task.createdById === session.sub;
-  if (!isManager && !isOwner && !isCreator) {
-    return NextResponse.json({ error: "You can only update tasks you own or created." }, { status: 403 });
-  }
 
   const body = await req.json();
   const allowed: Record<string, unknown> = {};
