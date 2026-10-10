@@ -85,7 +85,11 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
     setLoading(false);
   }
 
-  useEffect(() => { load(); }, [params.id]);
+  useEffect(() => {
+    load();
+    const interval = setInterval(() => { load(); }, 30000);
+    return () => clearInterval(interval);
+  }, [params.id]);
 
   async function save() {
     setSaving(true);

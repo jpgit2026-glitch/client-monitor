@@ -20,12 +20,17 @@ export default function BossPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    function fetchData() {
+      const qs = filter === "ALL" ? "?all=1" : `?role=${filter}`;
+      fetch(`/api/employees${qs}`)
+        .then((r) => r.json())
+        .then((d) => setRows(d.employees ?? []))
+        .finally(() => setLoading(false));
+    }
     setLoading(true);
-    const qs = filter === "ALL" ? "?all=1" : `?role=${filter}`;
-    fetch(`/api/employees${qs}`)
-      .then((r) => r.json())
-      .then((d) => setRows(d.employees ?? []))
-      .finally(() => setLoading(false));
+    fetchData();
+    const interval = setInterval(fetchData, 30000);
+    return () => clearInterval(interval);
   }, [filter]);
 
   return (

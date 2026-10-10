@@ -41,7 +41,11 @@ export default function EmployeeDetailPage({ params }: { params: { id: string } 
     setSelected(new Set());
   }
 
-  useEffect(() => { load(); }, [params.id]);
+  useEffect(() => {
+    load();
+    const interval = setInterval(() => { load(); }, 30000);
+    return () => clearInterval(interval);
+  }, [params.id]);
 
   function handleSelect(id: string, checked: boolean) {
     setSelected((prev) => {

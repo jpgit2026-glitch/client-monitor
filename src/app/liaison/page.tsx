@@ -40,7 +40,11 @@ export default function LiaisonPage() {
     setSelected(new Set());
   }
 
-  useEffect(() => { load(); }, [sort]);
+  useEffect(() => {
+    load();
+    const interval = setInterval(() => { load(); }, 30000);
+    return () => clearInterval(interval);
+  }, [sort]);
 
   function handleSelect(id: string, checked: boolean) {
     setSelected((prev) => {

@@ -69,7 +69,11 @@ export default function DashboardPage() {
     setClients(cls ?? []);
   }
 
-  useEffect(() => { load(); }, [sort]);
+  useEffect(() => {
+    load();
+    const interval = setInterval(() => { load(); }, 30000);
+    return () => clearInterval(interval);
+  }, [sort]);
 
   function handleOpenAssignForm() {
     if (employees.length === 0) loadFormData();

@@ -34,6 +34,8 @@ export default function ClientDetailPage({ params }: { params: { id: string } })
   useEffect(() => {
     load();
     fetch("/api/auth/me").then((r) => r.json()).then((d) => setSession(d)).catch(() => {});
+    const interval = setInterval(() => { load(); }, 30000);
+    return () => clearInterval(interval);
   }, [params.id]);
 
   async function loadEmployees() {

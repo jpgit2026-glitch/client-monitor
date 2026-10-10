@@ -108,7 +108,11 @@ export default function TaskModal({
     fetch(`/api/tasks/${taskId}/read`, { method: "POST" }).catch(() => {});
   }
 
-  useEffect(() => { load(); }, [taskId]);
+  useEffect(() => {
+    load();
+    const interval = setInterval(() => { load(); }, 30000);
+    return () => clearInterval(interval);
+  }, [taskId]);
 
   function handleClose() {
     if (dirty) onChange?.();
