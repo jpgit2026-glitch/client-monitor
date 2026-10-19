@@ -29,7 +29,7 @@ export async function PATCH(req: NextRequest) {
       select: { clientId: true },
       distinct: ["clientId"],
     });
-    const clientIds = userClientIds.map((t) => t.clientId);
+    const clientIds = userClientIds.map((t) => t.clientId).filter((id): id is string => id !== null);
 
     where = {
       id: { in: ids },

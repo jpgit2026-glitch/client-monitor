@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
     include: taskInclude,
     orderBy,
   });
-  const clientIds = [...new Set(own.map((t) => t.clientId))];
+  const clientIds = [...new Set(own.map((t) => t.clientId).filter((id): id is string => id !== null))];
   const connected = clientIds.length
     ? await db.task.findMany({
         where: { clientId: { in: clientIds }, private: false, assignees: { none: { id: session.sub } }, ...priorityFilter },

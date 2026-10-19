@@ -15,7 +15,7 @@ export async function GET() {
   });
 
   const rows = tasks.map((t) => ({
-    Client: t.client.name,
+    Client: t.client?.name ?? "Personal task",
     "Task Title": t.title,
     "Work Role": t.workRole,
     "Assigned To": t.assignedTo?.name ?? "",
