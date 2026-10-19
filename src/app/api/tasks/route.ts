@@ -29,6 +29,10 @@ export async function GET(req: NextRequest) {
   if (isManager) {
     const tasks = await db.task.findMany({
       where: {
+        OR: [
+          { private: false },
+          { private: true, createdById: session.sub },
+        ],
         ...(assignedToId ? { assignedToId } : {}),
         ...(clientId ? { clientId } : {}),
         ...priorityFilter,
@@ -55,7 +59,7 @@ export async function GET(req: NextRequest) {
   const clientIds = [...new Set(own.map((t) => t.clientId))];
   const connected = clientIds.length
     ? await db.task.findMany({
-        where: { clientId: { in: clientIds }, assignees: { none: { id: session.sub } }, ...priorityFilter },
+        where: { clientId: { in: clientIds }, private: false, assignees: { none: { id: session.sub } }, ...priorityFilter },
         include: taskInclude,
         orderBy,
       })
@@ -149,10 +153,11 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { title, clientId, assignedToIds, assignedToId, workRole, dueDate, dependsOnId, notes, priority, filePath } = body;
 
-  if (!title || !clientId) {
-    return NextResponse.json({ error: "Title and client are required." }, { status: 400 });
+  if (!title) {
+    return NextResponse.json({ error: "Title is required." }, { status: 400 });
   }
 
+  const isPrivate = !clientId;
   const ids: string[] = assignedToIds ?? (assignedToId ? [assignedToId] : []);
 
   let detectedRole: "ACCOUNTING" | "LIAISON" = workRole ?? "ACCOUNTING";
@@ -164,10 +169,11 @@ export async function POST(req: NextRequest) {
   const task = await db.task.create({
     data: {
       title,
-      clientId,
-      assignedToId: ids[0] || null,
-      currentHandlerId: ids[0] || null,
-      assignees: ids.length > 0 ? { connect: ids.map((id: string) => ({ id })) } : undefined,
+      clientId: clientId || null,
+      private: isPrivate,
+      assignedToId: isPrivate ? session.sub : (ids[0] || null),
+      currentHandlerId: isPrivate ? session.sub : (ids[0] || null),
+      assignees: isPrivate ? { connect: [{ id: session.sub }] } : (ids.length > 0 ? { connect: ids.map((id: string) => ({ id })) } : undefined),
       createdById: session.sub,
       workRole: detectedRole,
       priority: priority || "NORMAL",

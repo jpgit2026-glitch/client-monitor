@@ -385,14 +385,14 @@ function AssignTaskForm({
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!title.trim() || !clientId) { setError("Title and client are required."); return; }
+    if (!title.trim()) { setError("Title is required."); return; }
     setSaving(true);
     setError("");
     const res = await fetch("/api/tasks", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        title: title.trim(), clientId, assignedToIds: Array.from(selectedAssignees),
+        title: title.trim(), clientId: clientId || null, assignedToIds: Array.from(selectedAssignees),
         priority, dueDate: dueDate || null, notes: notes.trim() || null,
         filePath: filePath.trim() || null,
       }),
@@ -419,7 +419,7 @@ function AssignTaskForm({
           <input className="input w-full" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. File BIR Form 2307" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-ink mb-2">Client <span className="text-rust">*</span></label>
+          <label className="block text-sm font-medium text-ink mb-2">Client <span className="text-muted text-xs">(optional for personal tasks)</span></label>
           <select className="input w-full" value={clientId} onChange={(e) => setClientId(e.target.value)}>
             <option value="">Select client</option>
             {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
