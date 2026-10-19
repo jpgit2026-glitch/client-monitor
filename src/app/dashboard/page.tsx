@@ -38,7 +38,7 @@ export default function DashboardPage() {
     try { localStorage.setItem("taskView", v); } catch {}
   }
 
-  const [me, setMe] = useState<{ id: string } | null>(null);
+  const [me, setMe] = useState<{ id: string; role?: string } | null>(null);
 
   async function load() {
     setLoading(true);
@@ -52,7 +52,7 @@ export default function DashboardPage() {
     setMentions(d.unreadMentions ?? []);
     if (meRes) {
       const meData = await meRes.json();
-      if (meData.sub) setMe({ id: meData.sub });
+      if (meData.sub) setMe({ id: meData.sub, role: meData.role });
     }
     setLoading(false);
     setSelected(new Set());
@@ -161,6 +161,7 @@ export default function DashboardPage() {
         <AssignTaskForm
           employees={employees}
           clients={clients}
+          userRole={me?.role}
           onClose={() => setShowAssignForm(false)}
           onCreated={() => { setShowAssignForm(false); load(); }}
         />
@@ -366,13 +367,15 @@ function GroupedByClientView({ tasks, onChange, selectable, selected, onSelect, 
 }
 
 function AssignTaskForm({
-  employees, clients, onClose, onCreated,
+  employees, clients, userRole, onClose, onCreated,
 }: {
   employees: Employee[];
   clients: Client[];
+  userRole?: string;
   onClose: () => void;
   onCreated: () => void;
 }) {
+  const isIT = userRole === "IT";
   const [title, setTitle] = useState("");
   const [clientId, setClientId] = useState(clients[0]?.id ?? "");
   const [selectedAssignees, setSelectedAssignees] = useState<Set<string>>(new Set());
@@ -385,7 +388,7 @@ function AssignTaskForm({
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!title.trim()) { setError("Title is required."); return; }
+    if (!title.trim() || (!clientId && !isIT)) { setError("Title and client are required."); return; }
     setSaving(true);
     setError("");
     const res = await fetch("/api/tasks", {
@@ -419,7 +422,7 @@ function AssignTaskForm({
           <input className="input w-full" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. File BIR Form 2307" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-ink mb-2">Client <span className="text-muted text-xs">(optional for personal tasks)</span></label>
+          <label className="block text-sm font-medium text-ink mb-2">Client {isIT ? <span className="text-muted text-xs">(optional)</span> : <span className="text-rust">*</span>}</label>
           <select className="input w-full" value={clientId} onChange={(e) => setClientId(e.target.value)}>
             <option value="">Select client</option>
             {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}

@@ -153,11 +153,12 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { title, clientId, assignedToIds, assignedToId, workRole, dueDate, dependsOnId, notes, priority, filePath } = body;
 
-  if (!title) {
-    return NextResponse.json({ error: "Title is required." }, { status: 400 });
+  const isIT = session.role === "IT";
+  if (!title || (!clientId && !isIT)) {
+    return NextResponse.json({ error: "Title and client are required." }, { status: 400 });
   }
 
-  const isPrivate = !clientId;
+  const isPrivate = !clientId && isIT;
   const ids: string[] = assignedToIds ?? (assignedToId ? [assignedToId] : []);
 
   let detectedRole: "ACCOUNTING" | "LIAISON" = workRole ?? "ACCOUNTING";
